@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Receituário de Controle Especial - Ajuste Fino</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* =========================================
+           SETUP GERAL E VARIÁVEIS
+           ========================================= */
+        :root {
+            /* Dimensões A4 */
+            --page-w: 210mm;
+            --safe-h: 290mm;
+            
+            /* Cores */
+            --text-primary: #000000;
+            --text-secondary: #3f3f46;
+            --border-light: #e4e4e7;
+            --border-input: #d4d4d8;
+            --bg-paper: #ffffff;
+            
+            /* Tipografia */
+            --font-main: 'Inter', sans-serif;
+            
+            /* Layout */
+            --radius: 12px;
+            --pauta-color: #f1f5f9;
+            --pauta-line: #cbd5e1;
+            --pauta-height: 7.5mm;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: var(--font-main);
+            background-color: #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 0;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Folha de Papel */
+        .paper-page {
+            width: var(--page-w);
+            height: 296mm;
+            background-color: var(--bg-paper);
+            padding: 12mm 15mm;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layout-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Tipografia */
+        .label-title {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.03em;
+            display: block;
+        }
+
+        .label-sm {
+            font-size: 0.65rem;
+            color: #666;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        
+        /* Inputs Gerais */
+        input[type="text"], textarea {
+            font-family: var(--font-main);
+            font-size: 11pt;
+            color: var(--text-primary);
+            font-weight: 500;
+            background: transparent;
+            border: none;
+            width: 100%;
+            padding: 2px 0;
+            border-bottom: 1px solid transparent; 
+            border-radius: 0;
+            outline: none;
+        }
+
+        .input-line { border-bottom: 1px solid var(--border-input) !important; }
+
+        input:focus, textarea:focus {
+            border-bottom: 1px solid #000 !important;
+            background-color: rgba(0,0,0,0.01);
+        }
+
+        ::placeholder { color: #9ca3af; font-weight: 400; }
+        :focus::placeholder { color: transparent; }
+
+        /* Caixas Arredondadas */
+        .rounded-box {
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 5mm;
+            position: relative;
+            margin-bottom: 4mm;
+        }
+        
+        /* Ajuste solicitado: Fonte maior para Identificação do Emitente */
+        .box-label-float {
+            position: absolute;
+            top: -9px; /* Ajustado levemente para cima devido ao tamanho da fonte */
+            left: 12px;
+            background: #fff;
+            padding: 0 6px;
+            font-size: 0.8rem; /* Aumentado de 0.7rem para 0.8rem */
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* ================= SEÇÕES ================= */
+
+        /* 1. Header */
+        .top-header {
+            position: relative;
+            height: 20mm;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            margin-bottom: 2mm;
+        }
+        .main-title {
+            font-size: 15pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #111827;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-top: 2mm;
+            z-index: 1;
+        }
+        .via-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 1.5mm 3mm;
+            font-size: 7.5pt;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+            background: #fff;
+            z-index: 2;
+        }
+
+        /* 2. Emitente */
+        .issuer-grid { display: grid; gap: 3mm; }
+        .row-group { display: flex; gap: 4mm; width: 100%; }
+        .col { display: flex; flex-direction: column; }
+        .divider-v { width: 1px; background: var(--border-light); height: 100%; margin: 0 2mm; }
+
+        /* 3. Corpo */
+        .section-block { margin-bottom: 4mm; }
+
+        /* 4. Prescrição */
+        .prescription-area {
+            flex: 1; 
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+            margin-top: 2px;
+            background-image: repeating-linear-gradient(
+                to bottom,
+                transparent 0,
+                transparent calc(var(--pauta-height) - 1px),
+                var(--pauta-line) calc(var(--pauta-height) - 1px),
+                var(--pauta-line) var(--pauta-height)
+            );
+            background-attachment: local;
+        }
+        .presc-textarea {
+            width: 100%; height: 100%; resize: none;
+            line-height: var(--pauta-height);
+            font-size: 11pt;
+            padding: 0 5mm;
+            padding-top: 1.5mm;
+            background: transparent;
+        }
+
+        /* 5. Rodapé */
+        .footer {
+            height: 62mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-top: 4mm;
+        }
+        
+        .signature-area {
+            display: flex; 
+            gap: 10mm; 
+            margin-bottom: 5mm;
+            align-items: flex-end;
+            height: 20mm;
+        }
+
+        .footer-cols {
+            display: flex;
+            gap: 4mm;
+            height: 40mm;
+        }
+        .footer-box {
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 2mm 3mm;
+            display: flex;
+            flex-direction: column;
+        }
+        .footer-title {
+            font-size: 6.5pt;
+            font-weight: 800;
+            text-align: center;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 2mm;
+            padding-bottom: 1mm;
+            color: var(--text-secondary);
+        }
+
+        /* GRID DO COMPRADOR - AJUSTE PARA NÃO CORTAR LETRAS (g, j, p...) */
+        .buyer-grid {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            height: 100%;
+        }
+        .buyer-row {
+            display: flex;
+            gap: 2mm;
+            align-items: flex-end;
+            margin-bottom: 0;
+        }
+        .buyer-label { 
+            font-weight: 700; 
+            color: #555; 
+            font-size: 8pt; 
+            white-space: nowrap; 
+            margin-right: 2px; 
+            margin-bottom: 2px; /* Pequeno ajuste de alinhamento */
+        }
+        .buyer-input { 
+            flex: 1; 
+            border-bottom: 1px solid #d4d4d8; 
+            /* AUMENTADO: de 14px para 17px para caber descendentes */
+            height: 17px; 
+            font-size: 9pt; 
+            background: transparent; border-top: none; border-left: none; border-right: none;
+            /* PADDING BOTTOM: garante espaço para a perna do 'g' */
+            padding: 0 0 1px 0;
+            line-height: normal;
+        }
+
+        /* Segunda via */
+        .readonly-mode input, .readonly-mode textarea {
+            pointer-events: none;
+            color: #444;
+        }
+        
+        /* Controles */
+        .screen-controls {
+            position: fixed; top: 20px; right: 20px; z-index: 999;
+            background: #18181b; color: #fff; padding: 15px;
+            border-radius: 10px; width: 220px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .btn-print {
+            width: 100%; padding: 10px; background: #2563eb;
+            color: white; border: none; border-radius: 6px; cursor: pointer;
+            font-weight: 600; margin-top: 10px;
+        }
+        .btn-print:hover { background: #1d4ed8; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { background: none; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .screen-controls { display: none; }
+            .paper-page {
+                width: 210mm; height: 296mm; margin: 0;
+                box-shadow: none; border: none; page-break-after: always;
+                padding: 12mm 15mm;
+            }
+            .rounded-box, .via-badge, .footer-box, .prescription-area { border-color: #d1d5db !important; }
+            ::placeholder { color: transparent; }
+        }
+
+        @media screen and (max-width: 800px) {
+            .paper-page { transform: scale(0.45); transform-origin: top center; margin-bottom: -150mm; }
+            .top-header { height: auto; padding-bottom: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="screen-controls">
+        <h4 style="margin-bottom: 10px;">Opções</h4>
+        <small style="color:#a1a1aa;">Preencha a 1ª via. A 2ª via é automática.</small>
+        <button class="btn-print" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> IMPRIMIR
+        </button>
+    </div>
+
+    <!-- VIA 1 -->
+    <section class="paper-page" id="via1">
+        <div class="layout-container">
+            
+            <!-- Cabeçalho -->
+            <div class="top-header">
+                <div class="main-title">Receituário de Controle Especial</div>
+                <div class="via-badge">1ª VIA - FARMÁCIA/DROGARIA</div>
+            </div>
+
+            <!-- Emitente -->
+            <div class="rounded-box">
+                <!-- FONTE AUMENTADA AQUI -->
+                <span class="box-label-float">Identificação do Emitente</span>
+                
+                <div class="issuer-grid">
+                    <div class="col">
+                        <span class="label-sm">Nome Completo do Profissional</span>
+                        <input type="text" class="input-sync" data-field="emitente_nome" placeholder="Nome do Médico Exemplo" style="font-weight: 600; font-size: 11pt;">
+                    </div>
+                    <div class="row-group">
+                        <div class="col" style="width: 100px;">
+                            <span class="label-sm">CRM</span>
+                            <input type="text" class="input-sync" data-field="emitente_crm" placeholder="00000">
+                        </div>
+                        <div class="col" style="width: 40px;">
+                            <span class="label-sm">UF</span>
+                            <input type="text" class="input-sync" data-field="emitente_uf" placeholder="SP">
+                        </div>
+                        <div style="width: 1px; background: #e5e7eb; margin: 4px 0;"></div>
+                        <div class="col" style="flex: 1;">
+                            <span class="label-sm">Endereço Completo e Telefone</span>
+                            <input type="text" class="input-sync" data-field="emitente_end" placeholder="Av. Exemplo, 123 - (11) 9999-9999">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <span class="label-sm">Cidade</span>
+                        <input type="text" class="input-sync" data-field="emitente_cidade" placeholder="São Paulo">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paciente -->
+            <div class="section-block">
+                <span class="label-title">Paciente</span>
+                <input type="text" class="input-sync input-line" data-field="paciente_nome">
+            </div>
+            
+            <div class="section-block" style="margin-top: -2mm;">
+                <span class="label-title">Endereço</span>
+                <input type="text" class="input-sync input-line" data-field="paciente_end">
+            </div>
+
+            <!-- Prescrição -->
+            <div style="margin-top: 2mm;">
+                <span class="label-title">Prescrição</span>
+            </div>
+            <div class="prescription-area">
+                <textarea class="presc-textarea input-sync" data-field="prescricao"></textarea>
+            </div>
+
+            <!-- Rodapé -->
+            <div class="footer">
+                <div class="signature-area">
+                    <div style="width: 30%;">
+                        <span class="label-title" style="font-weight: 700; font-size: 0.7rem;">Data</span>
+                        <input type="text" class="input-sync input-line" data-field="data" style="text-align: center;">
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <div style="border-top: 1px solid #000; padding-top: 2px;">
+                            <span class="label-title" style="font-weight: 600; font-size: 0.7rem;">Assinatura e Carimbo do Médico</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-cols">
+                    <!-- Identificação Comprador -->
+                    <div class="footer-box" style="flex: 1.4;">
+                        <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+                        <div class="buyer-grid">
+                            <div class="buyer-row">
+                                <span class="buyer-label">Nome:</span>
+                                <input class="buyer-input" type="text">
+                            </div>
+                            <div class="buyer-row">
+                                <span class="buyer-label">Ident:</span>
+                                <input class="buyer-input" type="text" style="flex:1">
+                                <span class="buyer-label" style="margin-left: 5px;">Org:</span>
+                                <input class="buyer-input" type="text" style="width: 40px; flex:none;">
+                            </div>
+                            <div class="buyer-row">
+                                <span class="buyer-label">End:</span>
+                                <input class="buyer-input" type="text">
+                            </div>
+                            <div class="buyer-row">
+                                <span class="buyer-label">Cid:</span>
+                                <input class="buyer-input" type="text" style="flex:2">
+                                <span class="buyer-label" style="margin-left: 5px;">UF:</span>
+                                <input class="buyer-input" type="text" style="width: 25px; flex:none;">
+                                <span class="buyer-label" style="margin-left: 5px;">Tel:</span>
+                                <input class="buyer-input" type="text" style="flex:1.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-box" style="flex: 1;">
+                        <div class="footer-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
+                        <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #d4d4d8;">
+                            <small>(Carimbo da Farmácia)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIA 2 (Espelho) -->
+    <section class="paper-page readonly-mode" id="via2">
+        <div class="layout-container">
+            <div class="top-header">
+                <div class="main-title">Receituário de Controle Especial</div>
+                <div class="via-badge">2ª VIA - PACIENTE</div>
+            </div>
+
+            <div class="rounded-box">
+                <!-- FONTE AUMENTADA TAMBÉM NA VIA 2 -->
+                <span class="box-label-float">Identificação do Emitente</span>
+                <div class="issuer-grid">
+                    <div class="col">
+                        <span class="label-sm">Nome Completo do Profissional</span>
+                        <input type="text" data-target="emitente_nome" style="font-weight: 600;">
+                    </div>
+                    <div class="row-group">
+                        <div class="col" style="width: 100px;">
+                            <span class="label-sm">CRM</span>
+                            <input type="text" data-target="emitente_crm">
+                        </div>
+                        <div class="col" style="width: 40px;">
+                            <span class="label-sm">UF</span>
+                            <input type="text" data-target="emitente_uf">
+                        </div>
+                        <div style="width: 1px; background: #e5e7eb; margin: 4px 0;"></div>
+                        <div class="col" style="flex: 1;">
+                            <span class="label-sm">Endereço Completo e Telefone</span>
+                            <input type="text" data-target="emitente_end">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <span class="label-sm">Cidade</span>
+                        <input type="text" data-target="emitente_cidade">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-block">
+                <span class="label-title">Paciente</span>
+                <input type="text" class="input-line" data-target="paciente_nome">
+            </div>
+            <div class="section-block" style="margin-top: -2mm;">
+                <span class="label-title">Endereço</span>
+                <input type="text" class="input-line" data-target="paciente_end">
+            </div>
+
+            <div style="margin-top: 2mm;">
+                <span class="label-title">Prescrição</span>
+            </div>
+            <div class="prescription-area">
+                <textarea class="presc-textarea" data-target="prescricao" readonly tabindex="-1"></textarea>
+            </div>
+
+            <div class="footer">
+                <div class="signature-area">
+                    <div style="width: 30%;">
+                        <span class="label-title" style="font-weight: 700; font-size: 0.7rem;">Data</span>
+                        <input type="text" class="input-line" data-target="data" style="text-align: center;">
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <div style="border-top: 1px solid #000; padding-top: 2px;">
+                            <span class="label-title" style="font-weight: 600; font-size: 0.7rem;">Assinatura e Carimbo do Médico</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-cols">
+                    <div class="footer-box" style="flex: 1.4;">
+                        <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+                        <!-- Vazio na via 2 -->
+                    </div>
+                    <div class="footer-box" style="flex: 1;">
+                        <div class="footer-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
+                        <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #d4d4d8;">
+                            <small>(Carimbo da Farmácia)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('.input-sync');
+            
+            const dateField = document.querySelector('[data-field="data"]');
+            if (dateField) dateField.value = new Date().toLocaleDateString('pt-BR');
+
+            function sync(e) {
+                const fieldName = e.target.getAttribute('data-field');
+                const target = document.querySelector(`[data-target="${fieldName}"]`);
+                if (target) {
+                    target.value = e.target.value;
+                    if(e.target.tagName === 'TEXTAREA') target.scrollTop = e.target.scrollTop;
+                }
+            }
+
+            inputs.forEach(input => {
+                input.addEventListener('input', sync);
+                input.dispatchEvent(new Event('input'));
+            });
+        });
+    </script>
+</body>
+</html>]
