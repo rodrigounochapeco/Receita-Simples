@@ -1,35 +1,42 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Receituário de Controle Especial</title>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     :root {
+      /* A4 */
       --page-w: 210mm;
       --page-h: 296mm;
 
-      --text-primary: #000000;
+      /* Colors */
+      --text-primary: #000;
       --text-secondary: #3f3f46;
       --border-light: #e4e4e7;
       --border-input: #d4d4d8;
-      --bg-paper: #ffffff;
+      --bg-paper: #fff;
 
+      /* Type */
       --font-main: 'Inter', sans-serif;
 
+      /* Layout */
       --radius: 12px;
+
+      /* Pauta */
       --pauta-line: #cbd5e1;
       --pauta-height: 7.5mm;
 
-      /* Respiro da prescrição (corrige “aperto” no fim) */
+      /* Prescrição: respiro inferior (corrige o “aperto” no fim) */
       --presc-pad-top: 1.5mm;
       --presc-pad-x: 5mm;
       --presc-pad-bottom: 7mm;
@@ -61,11 +68,7 @@
       flex-direction: column;
     }
 
-    .layout-container {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
+    .layout-container { display: flex; flex-direction: column; height: 100%; }
 
     .label-title {
       font-size: 0.75rem;
@@ -97,7 +100,6 @@
       border-bottom: 1px solid transparent;
       outline: none;
     }
-
     .input-line { border-bottom: 1px solid var(--border-input) !important; }
 
     input:focus {
@@ -170,7 +172,7 @@
     /* Corpo */
     .section-block { margin-bottom: 4mm; }
 
-    /* Prescrição (WYSIWYG simples) */
+    /* Prescrição (editor rico simples, sem markdown) */
     .prescription-area {
       flex: 1;
       border: 1px solid var(--border-light);
@@ -206,7 +208,7 @@
       background-position: 0 var(--presc-pad-top);
     }
 
-    /* Evita margens estranhas quando colar HTML */
+    /* Evita espaçamentos indesejados */
     .presc-editor :where(p, div, span, strong, b, em, i, u) { margin: 0; padding: 0; line-height: inherit; }
 
     /* Rodapé */
@@ -244,14 +246,14 @@
       color: var(--text-secondary);
     }
 
-    /* GRID DO COMPRADOR */
+    /* Comprador */
     .buyer-grid {
       display: flex;
       flex-direction: column;
       justify-content: space-evenly;
       height: 100%;
     }
-    .buyer-row { display: flex; gap: 2mm; align-items: flex-end; margin-bottom: 0; }
+    .buyer-row { display: flex; gap: 2mm; align-items: flex-end; }
     .buyer-label {
       font-weight: 700;
       color: #555;
@@ -274,16 +276,56 @@
       font-weight: 500;
     }
 
-    /* Segunda via */
-    .readonly-mode input, .readonly-mode .presc-editor { pointer-events: none; color: #444; }
+    /* Via 2 */
+    .readonly-mode input,
+    .readonly-mode .presc-editor {
+      pointer-events: none;
+      color: #444;
+    }
 
-    /* Controles (não imprimir) */
+    /* ====== Controles (não imprimem) ====== */
     .screen-controls {
-      position: fixed; top: 20px; right: 20px; z-index: 999;
-      background: #18181b; color: #fff; padding: 14px;
-      border-radius: 10px; width: 260px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      background: #18181b;
+      color: #fff;
+      padding: 14px;
+      border-radius: 10px;
+      width: 270px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
+
+    .controls-header{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn-toggle-controls{
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-toggle-controls:hover{ background:#1f1f22; }
+    .btn-toggle-controls i{ transition: transform 120ms ease; }
+
+    .screen-controls.is-collapsed{
+      width: 210px;
+      padding-bottom: 12px;
+    }
+    .screen-controls.is-collapsed .controls-body{ display:none; }
+    .screen-controls.is-collapsed .btn-toggle-controls i{ transform: rotate(-180deg); }
 
     .controls-row { display: grid; gap: 8px; margin-top: 10px; }
 
@@ -329,12 +371,20 @@
 
     @media print {
       @page { size: A4; margin: 0; }
-      body { background: none; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body {
+        background: none;
+        padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
       .screen-controls { display: none !important; }
-
       .paper-page {
-        width: 210mm; height: 296mm; margin: 0;
-        box-shadow: none; border: none; page-break-after: always;
+        width: 210mm;
+        height: 296mm;
+        margin: 0;
+        box-shadow: none;
+        border: none;
+        page-break-after: always;
         padding: 12mm 15mm;
       }
       .rounded-box, .via-badge, .footer-box, .prescription-area { border-color: #d1d5db !important; }
@@ -349,33 +399,42 @@
 </head>
 
 <body>
-  <div class="screen-controls">
-    <h4 style="margin-bottom: 10px;">Opções</h4>
-    <small style="color:#a1a1aa;">Preencha a 1ª via. A 2ª via é automática.</small>
-
-    <div class="controls-row">
-      <button class="btn btn-primary" type="button" onclick="window.print()">
-        <i class="fa-solid fa-print"></i> IMPRIMIR
+  <!-- MENU DE OPÇÕES (não imprime) -->
+  <div class="screen-controls" id="controls">
+    <div class="controls-header">
+      <h4 style="margin:0;">Opções</h4>
+      <button type="button" id="btnToggleControls" class="btn-toggle-controls" aria-expanded="true" title="Minimizar/Expandir">
+        <i class="fa-solid fa-chevron-down"></i>
       </button>
+    </div>
 
-      <button class="btn btn-danger" id="btnClearAll" type="button">
-        <i class="fa-solid fa-eraser"></i> LIMPAR TUDO
-      </button>
+    <div class="controls-body">
+      <small style="color:#a1a1aa;">Preencha a 1ª via. A 2ª via é automática.</small>
 
-      <button class="btn btn-secondary" id="btnSaveIssuer" type="button">
-        <i class="fa-solid fa-floppy-disk"></i> SALVAR DADOS (EMITENTE)
-      </button>
+      <div class="controls-row">
+        <button class="btn btn-primary" type="button" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> IMPRIMIR
+        </button>
 
-      <button class="btn btn-secondary" id="btnFillIssuer" type="button" hidden>
-        <i class="fa-solid fa-wand-magic-sparkles"></i> PREENCHER DADOS SALVOS
-      </button>
+        <button class="btn btn-danger" id="btnClearAll" type="button">
+          <i class="fa-solid fa-eraser"></i> LIMPAR TUDO
+        </button>
 
-      <div style="margin-top:8px; font-size: 12px; color:#a1a1aa;">
-        Formatação na prescrição (também funciona com Ctrl+B / Ctrl+I / Ctrl+U):
-        <div class="format-row" style="margin-top:6px;">
-          <button class="btn-mini" id="btnBold" type="button"><b>B</b></button>
-          <button class="btn-mini" id="btnItalic" type="button"><i>I</i></button>
-          <button class="btn-mini" id="btnUnderline" type="button"><u>U</u></button>
+        <button class="btn btn-secondary" id="btnSaveIssuer" type="button">
+          <i class="fa-solid fa-floppy-disk"></i> SALVAR DADOS (EMITENTE)
+        </button>
+
+        <button class="btn btn-secondary" id="btnFillIssuer" type="button" hidden>
+          <i class="fa-solid fa-wand-magic-sparkles"></i> PREENCHER DADOS SALVOS
+        </button>
+
+        <div style="margin-top:8px; font-size: 12px; color:#a1a1aa;">
+          Formatação na prescrição (Ctrl+B / Ctrl+I / Ctrl+U):
+          <div class="format-row">
+            <button class="btn-mini" id="btnBold" type="button"><b>B</b></button>
+            <button class="btn-mini" id="btnItalic" type="button"><i>I</i></button>
+            <button class="btn-mini" id="btnUnderline" type="button"><u>U</u></button>
+          </div>
         </div>
       </div>
     </div>
@@ -440,8 +499,11 @@
       </div>
 
       <div class="prescription-area">
-        <!-- Editor rico (sem markdown) -->
-        <div class="presc-editor input-sync" data-field="prescricao" contenteditable="true" spellcheck="false"></div>
+        <div class="presc-editor input-sync"
+             id="presc1"
+             data-field="prescricao"
+             contenteditable="true"
+             spellcheck="false"></div>
       </div>
 
       <div class="footer">
@@ -461,22 +523,26 @@
         <div class="footer-cols">
           <div class="footer-box" style="flex: 1.4;">
             <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+
             <div class="buyer-grid">
               <div class="buyer-row">
                 <span class="buyer-label">Nome:</span>
-                <!-- Auto-fit aqui -->
+                <!-- Fonte diminui automaticamente se não couber -->
                 <input class="buyer-input autofit" data-autofit-min="8" type="text">
               </div>
+
               <div class="buyer-row">
                 <span class="buyer-label">Ident:</span>
                 <input class="buyer-input" type="text" style="flex:1">
                 <span class="buyer-label" style="margin-left: 5px;">Org:</span>
                 <input class="buyer-input" type="text" style="width: 40px; flex:none;">
               </div>
+
               <div class="buyer-row">
                 <span class="buyer-label">End:</span>
                 <input class="buyer-input" type="text">
               </div>
+
               <div class="buyer-row">
                 <span class="buyer-label">Cid:</span>
                 <input class="buyer-input" type="text" style="flex:2">
@@ -499,7 +565,7 @@
     </div>
   </section>
 
-  <!-- VIA 2 (Espelho) -->
+  <!-- VIA 2 -->
   <section class="paper-page readonly-mode" id="via2">
     <div class="layout-container">
       <div class="top-header">
@@ -557,7 +623,7 @@
       </div>
 
       <div class="prescription-area">
-        <div class="presc-editor" data-target="prescricao" contenteditable="false" spellcheck="false"></div>
+        <div class="presc-editor" id="presc2" data-target="prescricao" contenteditable="false" spellcheck="false"></div>
       </div>
 
       <div class="footer">
@@ -592,52 +658,43 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const STORAGE_KEY = 'receituario.emitente.v1';
+      const STORAGE_KEY_ISSUER = 'receituario.emitente.v1';
+      const STORAGE_KEY_CONTROLS = 'receituario.controlsCollapsed.v1';
       const ISSUER_FIELDS = ['emitente_nome', 'emitente_crm', 'emitente_uf', 'emitente_end', 'emitente_cidade'];
 
       const $  = (sel, ctx = document) => ctx.querySelector(sel);
       const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-      // ===== Data padrão =====
+      /* ===== Data padrão ===== */
       const dateField = $('[data-field="data"]');
-      if (dateField && !dateField.value) dateField.value = new Date().toLocaleDateString('pt-BR');
-
-      // ===== Sync (inputs + editor richtext) =====
-      const syncSources = $$('.input-sync');
-
-      function syncToMirror(sourceEl) {
-        const fieldName = sourceEl.getAttribute('data-field');
-        const target = document.querySelector(`[data-target="${fieldName}"]`);
-        if (!target) return;
-
-        const isRich = sourceEl.classList.contains('presc-editor') && sourceEl.isContentEditable;
-        if (isRich) {
-          target.innerHTML = sourceEl.innerHTML;
-          target.scrollTop = sourceEl.scrollTop;
-        } else {
-          target.value = sourceEl.value;
-        }
+      if (dateField && !dateField.value) {
+        dateField.value = new Date().toLocaleDateString('pt-BR');
       }
 
-      syncSources.forEach(el => {
-        el.addEventListener('input', () => syncToMirror(el));
-      });
+      /* ===== Menu minimizar ===== */
+      const controls = $('#controls');
+      const btnToggleControls = $('#btnToggleControls');
 
-      // Prescrição: scroll espelhado
-      (function setupPrescriptionScrollSync() {
-        const editor1 = $('#via1 .presc-editor[data-field="prescricao"]');
-        const editor2 = $('#via2 .presc-editor[data-target="prescricao"]');
-        if (!editor1 || !editor2) return;
+      function setControlsCollapsed(collapsed) {
+        if (!controls || !btnToggleControls) return;
+        controls.classList.toggle('is-collapsed', collapsed);
+        btnToggleControls.setAttribute('aria-expanded', String(!collapsed));
+        try { localStorage.setItem(STORAGE_KEY_CONTROLS, collapsed ? '1' : '0'); } catch {}
+      }
 
-        editor1.addEventListener('scroll', () => {
-          editor2.scrollTop = editor1.scrollTop;
+      if (controls && btnToggleControls) {
+        btnToggleControls.addEventListener('click', () => {
+          setControlsCollapsed(!controls.classList.contains('is-collapsed'));
         });
-      })();
 
-      // Dispara sync inicial
-      syncSources.forEach(el => el.dispatchEvent(new Event('input', { bubbles: true })));
+        // restaura estado
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY_CONTROLS);
+          if (saved === '1') setControlsCollapsed(true);
+        } catch {}
+      }
 
-      // ===== Auto-fit de fonte em inputs =====
+      /* ===== Auto-fit de fonte (inputs com .autofit) ===== */
       const _fitCanvas = document.createElement('canvas');
       const _fitCtx = _fitCanvas.getContext('2d');
 
@@ -651,8 +708,8 @@
 
         const fontFamily = style.fontFamily;
         const fontWeight = style.fontWeight;
-
         const value = input.value || input.placeholder || '';
+
         const padL = parseFloat(style.paddingLeft) || 0;
         const padR = parseFloat(style.paddingRight) || 0;
         const available = Math.max(0, input.clientWidth - padL - padR - 2);
@@ -678,7 +735,73 @@
       }
       setupAutofit();
 
-      // ===== Prescrição: clicar em qualquer linha =====
+      /* ===== Prescrição (editor) ===== */
+      const presc1 = $('#presc1');
+      const presc2 = $('#presc2');
+
+      // Cola como texto puro (reduz “bugs” de colagem com formatação estranha)
+      if (presc1) {
+        presc1.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const text = (e.clipboardData || window.clipboardData).getData('text');
+          // transforma quebras de linha em <br>
+          const html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\r\n|\r|\n/g, '<br>');
+          document.execCommand('insertHTML', false, html);
+          presc1.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      }
+
+      // Sanitização leve ao sair do campo (mantém só b/i/u/br e texto)
+      function sanitizePrescHTML(editor) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${editor.innerHTML}</div>`, 'text/html');
+        const root = doc.body.firstChild;
+
+        function esc(s) {
+          return s
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        }
+
+        function walk(node) {
+          if (node.nodeType === Node.TEXT_NODE) return esc(node.nodeValue || '');
+          if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+          const tag = node.tagName.toUpperCase();
+          const children = Array.from(node.childNodes).map(walk).join('');
+
+          if (tag === 'BR') return '<br>';
+          if (tag === 'B' || tag === 'STRONG') return `<b>${children}</b>`;
+          if (tag === 'I' || tag === 'EM') return `<i>${children}</i>`;
+          if (tag === 'U') return `<u>${children}</u>`;
+          if (tag === 'DIV' || tag === 'P') return `${children}<br>`;
+          if (tag === 'SPAN') return children;
+
+          // outros: ignora tag, preserva conteúdo
+          return children;
+        }
+
+        let out = Array.from(root.childNodes).map(walk).join('');
+        // remove <br> extras no final
+        out = out.replace(/(<br>\s*)+$/g, '');
+        editor.innerHTML = out;
+      }
+
+      if (presc1) {
+        presc1.addEventListener('blur', () => {
+          sanitizePrescHTML(presc1);
+          presc1.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      }
+
+      // Clique em qualquer “linha” abaixo do conteúdo: cria linhas em branco até lá
       function placeCaretAtEnd(el) {
         el.focus();
         const range = document.createRange();
@@ -690,87 +813,100 @@
       }
 
       function getLineCountApprox(editor) {
-        // Aproxima por quebras de linha do texto (Enter). Para “linhas vazias”, a lógica abaixo adiciona <br>.
-        const t = (editor.innerText || '').replace(/\u00A0/g, ''); // nbsp
+        const t = (editor.innerText || '').replace(/\u00A0/g, '');
         const lines = t.split('\n');
         return Math.max(1, lines.length);
       }
 
-      (function setupClickToLine() {
-        const editor = $('#via1 .presc-editor[data-field="prescricao"]');
-        if (!editor) return;
-
-        editor.addEventListener('mousedown', (e) => {
-          // Só “força linha” quando clica abaixo do conteúdo atual
-          const cs = getComputedStyle(editor);
+      if (presc1) {
+        presc1.addEventListener('mousedown', (e) => {
+          const cs = getComputedStyle(presc1);
           const lineHeight = parseFloat(cs.lineHeight) || 18;
           const padTop = parseFloat(cs.paddingTop) || 0;
 
-          const y = e.offsetY + editor.scrollTop - padTop;
+          const y = e.offsetY + presc1.scrollTop - padTop;
           const clickedLine = Math.max(0, Math.floor(y / lineHeight));
-
-          const currentLineCount = getLineCountApprox(editor);
+          const currentLineCount = getLineCountApprox(presc1);
 
           if (clickedLine >= currentLineCount) {
             e.preventDefault();
 
             const need = clickedLine - currentLineCount + 1;
-
-            placeCaretAtEnd(editor);
+            placeCaretAtEnd(presc1);
             for (let i = 0; i < need; i++) {
-              // Insere quebra de linha “real” no contenteditable
               document.execCommand('insertHTML', false, '<br>');
             }
-
-            // dispara sync
-            editor.dispatchEvent(new Event('input', { bubbles: true }));
+            presc1.dispatchEvent(new Event('input', { bubbles: true }));
           }
         });
-      })();
-
-      // ===== Formatação (B/I/U) =====
-      function focusPrescription() {
-        const editor = $('#via1 .presc-editor[data-field="prescricao"]');
-        if (editor) editor.focus();
-        return editor;
       }
 
+      /* ===== Sync: via1 -> via2 ===== */
+      const sources = $$('.input-sync');
+
+      function syncFrom(sourceEl) {
+        const field = sourceEl.getAttribute('data-field');
+        const target = document.querySelector(`[data-target="${field}"]`);
+        if (!target) return;
+
+        const isEditor = sourceEl.classList.contains('presc-editor');
+        if (isEditor) {
+          target.innerHTML = sourceEl.innerHTML;
+          target.scrollTop = sourceEl.scrollTop;
+        } else {
+          target.value = sourceEl.value;
+        }
+      }
+
+      sources.forEach(el => el.addEventListener('input', () => syncFrom(el)));
+      sources.forEach(el => el.dispatchEvent(new Event('input', { bubbles: true })));
+
+      // Scroll espelhado prescrição
+      if (presc1 && presc2) {
+        presc1.addEventListener('scroll', () => {
+          presc2.scrollTop = presc1.scrollTop;
+        });
+      }
+
+      /* ===== Formatação (negrito/itálico/sublinhado) ===== */
+      function focusPresc() { if (presc1) presc1.focus(); }
+
       function applyFormat(cmd) {
-        const editor = focusPrescription();
-        if (!editor) return;
+        focusPresc();
         document.execCommand(cmd, false, null);
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
+        if (presc1) presc1.dispatchEvent(new Event('input', { bubbles: true }));
       }
 
       $('#btnBold')?.addEventListener('click', () => applyFormat('bold'));
       $('#btnItalic')?.addEventListener('click', () => applyFormat('italic'));
       $('#btnUnderline')?.addEventListener('click', () => applyFormat('underline'));
 
-      // ===== Botão: Limpar tudo =====
+      /* ===== Limpar tudo ===== */
       $('#btnClearAll')?.addEventListener('click', () => {
-        const via1 = document.getElementById('via1');
+        const via1 = $('#via1');
         if (!via1) return;
 
+        // limpa inputs text dentro da via1 (inclui comprador)
         via1.querySelectorAll('input[type="text"]').forEach(el => {
           el.value = '';
           el.style.fontSize = '';
         });
 
-        const editor = $('#via1 .presc-editor[data-field="prescricao"]');
-        if (editor) editor.innerHTML = '';
+        // limpa prescrição
+        if (presc1) presc1.innerHTML = '';
 
-        // reatribui data atual
+        // data atual novamente
         if (dateField) dateField.value = new Date().toLocaleDateString('pt-BR');
 
         // re-sync
-        syncSources.forEach(el => el.dispatchEvent(new Event('input', { bubbles: true })));
+        sources.forEach(el => el.dispatchEvent(new Event('input', { bubbles: true })));
 
-        // recalcula autofit
+        // re-autofit
         $$('.autofit').forEach(fitTextToInput);
       });
 
-      // ===== Salvar/Preencher Emitente (localStorage) =====
-      function getIssuerDataFromForm() {
+      /* ===== Salvar/Preencher Emitente ===== */
+      function getIssuerData() {
         const data = {};
         ISSUER_FIELDS.forEach(k => {
           const el = $(`#via1 [data-field="${k}"]`);
@@ -795,7 +931,7 @@
 
       function loadSavedIssuer() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
+          const raw = localStorage.getItem(STORAGE_KEY_ISSUER);
           if (!raw) return null;
           return JSON.parse(raw);
         } catch {
@@ -807,8 +943,8 @@
       const btnFillIssuer = $('#btnFillIssuer');
 
       btnSaveIssuer?.addEventListener('click', () => {
-        const data = getIssuerDataFromForm();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const data = getIssuerData();
+        localStorage.setItem(STORAGE_KEY_ISSUER, JSON.stringify(data));
         if (btnFillIssuer) btnFillIssuer.hidden = false;
 
         const old = btnSaveIssuer.innerHTML;
@@ -821,8 +957,8 @@
         if (saved) fillIssuerData(saved);
       });
 
-      // Sugere preencher ao abrir
-      (function initSavedIssuerSuggestion() {
+      // Sugestão/auto-preenchimento ao entrar
+      (function initIssuerSuggestion() {
         const saved = loadSavedIssuer();
         if (!saved) return;
 
