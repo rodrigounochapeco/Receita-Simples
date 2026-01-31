@@ -2,977 +2,1770 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Receituário de Controle Especial</title>
 
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <style>
-    :root {
-      /* A4 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root{
+      --color-black:#1a1a1a;
+      --color-gray-dark:#4a4a4a;
+      --color-gray:#6b6b6b;
+      --color-gray-light:#e0e0e0;
+      --color-gray-lighter:#f5f5f5;
+      --color-white:#ffffff;
+      --border-radius:6px;
+      --font-main: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --ui-width:190px;
+
       --page-w: 210mm;
-      --page-h: 296mm;
+      --page-h: 297mm;
 
-      /* Colors */
-      --text-primary: #000;
-      --text-secondary: #3f3f46;
-      --border-light: #e4e4e7;
-      --border-input: #d4d4d8;
-      --bg-paper: #fff;
+      --page-pad-y: 8mm;
+      --page-pad-x: 10mm;
 
-      /* Type */
-      --font-main: 'Inter', sans-serif;
+      --rx-font-default: 11;
+      --rx-line-height: 1.28;
+      --rx-pad-y: 3mm;
+      --rx-pad-x: 4mm;
 
-      /* Layout */
-      --radius: 12px;
+      --footer-h: 52mm;
 
-      /* Pauta */
-      --pauta-line: #cbd5e1;
-      --pauta-height: 7.5mm;
-
-      /* Prescrição: respiro inferior (corrige o “aperto” no fim) */
-      --presc-pad-top: 1.5mm;
-      --presc-pad-x: 5mm;
-      --presc-pad-bottom: 7mm;
+      --box-pad: 4mm;
+      --box-gap: 2.5mm;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body{
+      font-family:var(--font-main);
+      background:#e8e8e8;
+      color:var(--color-gray-dark);
+      line-height:1.4;
+      min-height:100vh;
+      padding:20px;
+      padding-right:calc(var(--ui-width) + 40px);
+      -webkit-font-smoothing:antialiased;
+    }
 
-    body {
+    #pages-container{
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      align-items:center;
+      max-width:calc(100vw - var(--ui-width) - 60px);
+    }
+
+    .paper-page{
+      width:var(--page-w);
+      height:var(--page-h);
+      background:var(--color-white);
+      box-shadow:0 2px 20px rgba(0,0,0,.10);
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      padding:var(--page-pad-y) var(--page-pad-x);
+      transform-origin: top center;
+      flex-shrink:0;
+    }
+
+    .paper-page.active{
+      box-shadow:0 2px 20px rgba(59,130,246,.30);
+      outline:2px solid #3b82f6;
+    }
+
+    .layout-container{
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      min-height:0;
+    }
+
+    /* Via do paciente: gradiente + bloqueio */
+    .via2-page{
+      background:linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    }
+    .via2-page .layout-container *{
+      pointer-events:none;
+      user-select:none;
+    }
+
+    /* (4) labels um pouco maiores */
+    .label-title{
+      font-size:9px;
+      font-weight:600;
+      color:var(--color-gray);
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      margin-bottom:3px;
+      display:block;
+      font-family:var(--font-main);
+    }
+
+    .label-sm{
+      font-size:9px;
+      font-weight:700;
+      color:var(--color-gray);
+      text-transform:uppercase;
+      letter-spacing:.6px;
+      margin-bottom:2px;
+      font-family:var(--font-main);
+    }
+
+    input[type="text"]{
+      font-family:var(--font-main);
+      font-size:11pt;
+      color:var(--color-black);
+      font-weight:500;
+      background:transparent;
+      border:none;
+      width:100%;
+      padding:2px 0;
+      border-bottom:1px solid transparent;
+      outline:none;
+    }
+
+    .input-line{ border-bottom:1px solid #d4d4d8 !important; }
+
+    input:focus{
+      border-bottom:1px solid #000 !important;
+      background-color:rgba(0,0,0,0.01);
+    }
+
+    ::placeholder{ color:#9ca3af; font-weight:400; }
+    :focus::placeholder{ color:transparent; }
+
+    .rounded-box{
+      border:1px solid #e4e4e7;
+      border-radius:var(--border-radius);
+      padding:var(--box-pad);
+      position:relative;
+      margin-bottom:3mm;
+      background:var(--color-white);
+    }
+
+    .box-label-float{
+      position:absolute;
+      top:-9px;
+      left:12px;
+      background:#fff;
+      padding:0 6px;
+      font-size:9px;
+      font-weight:700;
+      color:var(--color-gray);
+      text-transform:uppercase;
+      letter-spacing:.6px;
+    }
+
+    .top-header{
+      position:relative;
+      height:16mm;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      margin-bottom:2mm;
+    }
+
+    .main-title{
+      font-size:12pt;
+      font-weight:800;
+      text-transform:uppercase;
+      color:var(--color-black);
+      text-align:center;
+      letter-spacing:.2px;
+      margin-top:1.5mm;
+      z-index:1;
+      font-family:var(--font-main);
+    }
+
+    .via-badge{
+      position:absolute;
+      bottom:0;
+      right:0;
+      border:1px solid #e4e4e7;
+      border-radius:var(--border-radius);
+      padding:1.2mm 2.6mm;
+      font-size:7.5pt;
+      font-weight:600;
+      color:var(--color-gray);
+      text-transform:uppercase;
+      background:#fff;
+      z-index:2;
+      font-family:var(--font-main);
+    }
+
+    .issuer-grid{ display:grid; gap:var(--box-gap); }
+    .row-group{ display:flex; gap:4mm; width:100%; align-items:flex-end; }
+    .col{ display:flex; flex-direction:column; }
+
+    .section-block{ margin-bottom:2.5mm; }
+
+    /* Prescrição branco, sem linhas, mais compacto */
+    .prescription-area{
+      flex:1;
+      border:1px solid #e4e4e7;
+      border-radius:var(--border-radius);
+      position:relative;
+      overflow:hidden;
+      margin-top:1mm;
+      background:#fff;
+      min-height:0;
+    }
+
+    .presc-editor{
+      height:100%;
+      width:100%;
+      overflow:hidden; /* pagina */
+      padding:var(--rx-pad-y) var(--rx-pad-x);
+
+      font-size: calc(var(--rx-font-default) * 1pt);
+      line-height: var(--rx-line-height);
+
+      outline:none;
+
+      white-space:pre-wrap;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+
+      background:#fff;
+      color: var(--color-black);
       font-family: var(--font-main);
-      background-color: #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 0;
-      color: var(--text-primary);
-      -webkit-font-smoothing: antialiased;
+      font-weight: 400;
     }
 
-    .paper-page {
-      width: var(--page-w);
-      height: var(--page-h);
-      background-color: var(--bg-paper);
-      padding: 12mm 15mm;
-      position: relative;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      margin-bottom: 30px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    /* garante visual forte da formatação */
+    .presc-editor b, .presc-editor strong{ font-weight:800; }
+    .presc-editor i, .presc-editor em{ font-style:italic; }
+    .presc-editor u{ text-decoration: underline; }
+
+    .presc-editor:empty::before{
+      content:'Digite a prescrição aqui...';
+      color:var(--color-gray-light);
+      font-style:italic;
     }
 
-    .layout-container { display: flex; flex-direction: column; height: 100%; }
-
-    .label-title {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      font-weight: 800;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      letter-spacing: 0.03em;
-      display: block;
+    .presc-editor :where(p, div, span, strong, b, em, i, u){
+      margin:0; padding:0; line-height:inherit;
     }
 
-    .label-sm {
-      font-size: 0.65rem;
-      color: #666;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 2px;
+    [contenteditable="true"]:focus{
+      outline:2px solid #3b82f6;
+      outline-offset:2px;
+      border-radius:3px;
+    }
+    [contenteditable="true"]:hover{ background:rgba(59,130,246,.03); }
+
+    .footer{
+      height:var(--footer-h);
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      margin-top:2mm;
     }
 
-    input[type="text"] {
-      font-family: var(--font-main);
-      font-size: 11pt;
-      color: var(--text-primary);
-      font-weight: 500;
-      background: transparent;
-      border: none;
-      width: 100%;
-      padding: 2px 0;
-      border-bottom: 1px solid transparent;
-      outline: none;
-    }
-    .input-line { border-bottom: 1px solid var(--border-input) !important; }
-
-    input:focus {
-      border-bottom: 1px solid #000 !important;
-      background-color: rgba(0,0,0,0.01);
+    .signature-area{
+      display:flex;
+      gap:8mm;
+      margin-bottom:3mm;
+      align-items:flex-end;
+      height:16mm;
     }
 
-    ::placeholder { color: #9ca3af; font-weight: 400; }
-    :focus::placeholder { color: transparent; }
+    .footer-cols{ display:flex; gap:4mm; height:calc(var(--footer-h) - 19mm); }
 
-    .rounded-box {
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 5mm;
-      position: relative;
-      margin-bottom: 4mm;
+    .footer-box{
+      border:1px solid #e4e4e7;
+      border-radius:var(--border-radius);
+      padding:2mm 3mm;
+      display:flex;
+      flex-direction:column;
+      background:#fff;
+      overflow:hidden;
     }
 
-    .box-label-float {
-      position: absolute;
-      top: -9px;
-      left: 12px;
-      background: #fff;
-      padding: 0 6px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      text-transform: uppercase;
+    .footer-title{
+      font-size:7px;
+      font-weight:700;
+      text-align:center;
+      border-bottom:1px solid #e4e4e7;
+      margin-bottom:1.5mm;
+      padding-bottom:1mm;
+      color:var(--color-gray);
+      text-transform:uppercase;
+      letter-spacing:.6px;
     }
 
-    /* Header */
-    .top-header {
-      position: relative;
-      height: 20mm;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      margin-bottom: 2mm;
+    .buyer-grid{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-evenly;
+      height:100%;
+      gap:1.5mm;
     }
-    .main-title {
-      font-size: 15pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #111827;
-      text-align: center;
-      letter-spacing: -0.5px;
-      margin-top: 2mm;
-      z-index: 1;
+    .buyer-row{ display:flex; gap:2mm; align-items:flex-end; }
+    .buyer-label{
+      font-weight:700;
+      color:var(--color-gray);
+      font-size:8pt;
+      white-space:nowrap;
+      margin-right:2px;
+      margin-bottom:2px;
+      font-family:var(--font-main);
     }
-    .via-badge {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      border: 1px solid var(--border-light);
-      border-radius: 6px;
-      padding: 1.5mm 3mm;
-      font-size: 7.5pt;
-      font-weight: 600;
-      color: #555;
-      text-transform: uppercase;
-      background: #fff;
-      z-index: 2;
+    .buyer-input{
+      flex:1;
+      border-bottom:1px solid #d4d4d8;
+      height:17px;
+      font-size:9pt;
+      background:transparent;
+      border-top:none; border-left:none; border-right:none;
+      padding:0 0 1px 0;
+      line-height:normal;
+      outline:none;
+      font-family:var(--font-main);
+      font-weight:500;
     }
 
-    /* Emitente */
-    .issuer-grid { display: grid; gap: 3mm; }
-    .row-group { display: flex; gap: 4mm; width: 100%; }
-    .col { display: flex; flex-direction: column; }
-
-    /* Corpo */
-    .section-block { margin-bottom: 4mm; }
-
-    /* Prescrição (editor rico simples, sem markdown) */
-    .prescription-area {
-      flex: 1;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      position: relative;
-      overflow: hidden;
-      margin-top: 2px;
-      background: #fff;
+    .page-indicator{
+      position:absolute;
+      bottom:6px;
+      right:10px;
+      font-size:9px;
+      color:var(--color-gray);
     }
 
-    .presc-editor {
-      height: 100%;
-      width: 100%;
-      overflow: auto;
-
-      padding: var(--presc-pad-top) var(--presc-pad-x) var(--presc-pad-bottom) var(--presc-pad-x);
-
-      font-size: 11pt;
-      line-height: var(--pauta-height);
-      outline: none;
-
-      white-space: pre-wrap;
-      word-break: break-word;
-
-      background-image: repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent calc(var(--pauta-height) - 1px),
-        var(--pauta-line) calc(var(--pauta-height) - 1px),
-        var(--pauta-line) var(--pauta-height)
-      );
-      background-attachment: local;
-      background-position: 0 var(--presc-pad-top);
+    /* UI flutuante */
+    .floating-ui{
+      position:fixed;
+      top:20px;
+      right:20px;
+      width:var(--ui-width);
+      background:var(--color-white);
+      border:1px solid var(--color-gray-light);
+      border-radius:10px;
+      padding:14px;
+      box-shadow:0 4px 25px rgba(0,0,0,.12);
+      z-index:1000;
+      max-height:calc(100vh - 40px);
+      overflow-y:auto;
     }
 
-    /* Evita espaçamentos indesejados */
-    .presc-editor :where(p, div, span, strong, b, em, i, u) { margin: 0; padding: 0; line-height: inherit; }
-
-    /* Rodapé */
-    .footer {
-      height: 62mm;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      margin-top: 4mm;
-    }
-
-    .signature-area {
-      display: flex;
-      gap: 10mm;
-      margin-bottom: 5mm;
-      align-items: flex-end;
-      height: 20mm;
-    }
-
-    .footer-cols { display: flex; gap: 4mm; height: 40mm; }
-    .footer-box {
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 2mm 3mm;
-      display: flex;
-      flex-direction: column;
-    }
-    .footer-title {
-      font-size: 6.5pt;
-      font-weight: 800;
-      text-align: center;
-      border-bottom: 1px solid var(--border-light);
-      margin-bottom: 2mm;
-      padding-bottom: 1mm;
-      color: var(--text-secondary);
-    }
-
-    /* Comprador */
-    .buyer-grid {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-evenly;
-      height: 100%;
-    }
-    .buyer-row { display: flex; gap: 2mm; align-items: flex-end; }
-    .buyer-label {
-      font-weight: 700;
-      color: #555;
-      font-size: 8pt;
-      white-space: nowrap;
-      margin-right: 2px;
-      margin-bottom: 2px;
-    }
-    .buyer-input {
-      flex: 1;
-      border-bottom: 1px solid #d4d4d8;
-      height: 17px;
-      font-size: 9pt;
-      background: transparent;
-      border-top: none; border-left: none; border-right: none;
-      padding: 0 0 1px 0;
-      line-height: normal;
-      outline: none;
-      font-family: var(--font-main);
-      font-weight: 500;
-    }
-
-    /* Via 2 */
-    .readonly-mode input,
-    .readonly-mode .presc-editor {
-      pointer-events: none;
-      color: #444;
-    }
-
-    /* ====== Controles (não imprimem) ====== */
-    .screen-controls {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 999;
-      background: #18181b;
-      color: #fff;
-      padding: 14px;
-      border-radius: 10px;
-      width: 270px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .controls-header{
+    .floating-ui-title{
+      font-size:11px;
+      font-weight:600;
+      color:var(--color-black);
+      margin-bottom:12px;
+      padding-bottom:10px;
+      border-bottom:1px solid var(--color-gray-light);
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap:6px;
     }
 
-    .btn-toggle-controls{
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      border: 1px solid #3f3f46;
-      background: #27272a;
-      color: #fff;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .floating-section{ margin-bottom:12px; }
+    .floating-section:last-child{ margin-bottom:0; }
+
+    .floating-section-label{
+      font-size:9px;
+      font-weight:500;
+      color:var(--color-gray);
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      margin-bottom:6px;
     }
-    .btn-toggle-controls:hover{ background:#1f1f22; }
-    .btn-toggle-controls i{ transition: transform 120ms ease; }
 
-    .screen-controls.is-collapsed{
-      width: 210px;
-      padding-bottom: 12px;
+    .btn-group{ display:flex; gap:4px; }
+    .btn-group-spaced{
+      display:flex;
+      gap:4px;
+      align-items:center;
+      justify-content:space-between;
     }
-    .screen-controls.is-collapsed .controls-body{ display:none; }
-    .screen-controls.is-collapsed .btn-toggle-controls i{ transform: rotate(-180deg); }
 
-    .controls-row { display: grid; gap: 8px; margin-top: 10px; }
-
-    .btn {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 700;
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
+    .btn{
+      padding:8px 12px;
+      border:1px solid var(--color-gray-light);
+      border-radius:var(--border-radius);
+      background:var(--color-white);
+      cursor:pointer;
+      font-family:var(--font-main);
+      font-size:11px;
+      font-weight:500;
+      color:var(--color-gray-dark);
+      transition:all .15s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      user-select:none;
     }
-    .btn-primary { background: #2563eb; color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
 
-    .btn-danger { background: #dc2626; color: #fff; }
-    .btn-danger:hover { background: #b91c1c; }
-
-    .btn-secondary { background: #27272a; color: #fff; border: 1px solid #3f3f46; }
-    .btn-secondary:hover { background: #1f1f22; }
-
-    .format-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-top: 6px;
+    .btn:hover{
+      background:var(--color-gray-lighter);
+      border-color:var(--color-gray);
     }
-    .btn-mini {
-      padding: 9px 8px;
-      border-radius: 6px;
-      border: 1px solid #3f3f46;
-      background: #111827;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 800;
+    .btn:active{ transform:scale(.98); }
+    .btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+    .btn-format{ width:34px; height:34px; padding:0; font-size:13px; }
+    .btn-format.bold{ font-weight:700; }
+    .btn-format.italic{ font-style:italic; }
+    .btn-format.underline{ text-decoration:underline; }
+
+    .btn-font{ width:38px; height:34px; padding:0; font-size:14px; font-weight:600; }
+
+    .font-size-display{
+      font-size:11px;
+      font-weight:600;
+      color:var(--color-black);
+      min-width:60px;
+      text-align:center;
+      padding:6px 8px;
+      background:var(--color-gray-lighter);
+      border-radius:4px;
     }
-    .btn-mini:hover { background: #0b1220; }
 
-    .btn[hidden] { display: none !important; }
+    .active-page-indicator{
+      font-size:9px;
+      color:var(--color-gray);
+      text-align:center;
+      margin-top:4px;
+    }
+    .active-page-indicator span{ font-weight:600; color:#3b82f6; }
 
-    @media print {
-      @page { size: A4; margin: 0; }
-      body {
-        background: none;
-        padding: 0;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    .btn-full{ width:100%; margin-top:6px; }
+
+    .btn-primary{
+      background:var(--color-black);
+      color:var(--color-white);
+      border-color:var(--color-black);
+    }
+    .btn-primary:hover{ background:var(--color-gray-dark); }
+
+    .btn-success{
+      color:#047857;
+      border-color:#10b981;
+      background:#ecfdf5;
+    }
+    .btn-success:hover{ background:#d1fae5; }
+
+    .btn-info{
+      color:#0369a1;
+      border-color:#38bdf8;
+      background:#f0f9ff;
+    }
+    .btn-info:hover{ background:#e0f2fe; }
+
+    .btn-warning{
+      color:#b45309;
+      border-color:#fbbf24;
+      background:#fffbeb;
+    }
+    .btn-warning:hover{ background:#fef3c7; }
+
+    .btn-danger{
+      color:#dc2626;
+      border-color:#fca5a5;
+      background:#fef2f2;
+    }
+    .btn-danger:hover{ background:#fee2e2; }
+
+    .page-count-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:10px;
+      color:var(--color-gray);
+      margin-top:4px;
+    }
+    .page-count-badge span{
+      font-weight:600;
+      color:var(--color-black);
+    }
+
+    .toast{
+      position:fixed;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:var(--color-black);
+      color:var(--color-white);
+      padding:10px 20px;
+      border-radius:var(--border-radius);
+      font-size:12px;
+      z-index:2000;
+      opacity:0;
+      transition:opacity .3s ease;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      max-width:min(92vw, 720px);
+    }
+    .toast.show{ opacity:1; }
+    .toast.success{ background:#047857; }
+
+    #rx-measurer{
+      position:absolute;
+      left:-99999px;
+      top:0;
+      visibility:hidden;
+      white-space:pre-wrap;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+      pointer-events:none;
+      user-select:none;
+      box-sizing:border-box;
+    }
+
+    @media screen and (max-width:1400px){
+      .paper-page{ transform:scale(.75); margin-bottom:-65mm; }
+    }
+    @media screen and (max-width:1100px){
+      .paper-page{ transform:scale(.55); margin-bottom:-110mm; }
+    }
+    @media screen and (max-width:900px){
+      :root{ --ui-width:160px; }
+      .paper-page{ transform:scale(.45); margin-bottom:-140mm; }
+      .floating-ui{ padding:10px; }
+      .floating-section-label{ font-size:8px; }
+      .btn{ padding:6px 10px; font-size:10px; }
+      .btn-format, .btn-font{ width:30px; height:30px; }
+    }
+
+    @media print{
+      @page{ size:A4; margin:0; }
+      *{
+        -webkit-print-color-adjust:exact !important;
+        print-color-adjust:exact !important;
       }
-      .screen-controls { display: none !important; }
-      .paper-page {
-        width: 210mm;
-        height: 296mm;
-        margin: 0;
-        box-shadow: none;
-        border: none;
-        page-break-after: always;
-        padding: 12mm 15mm;
+      html, body{
+        width:210mm;
+        height:auto;
+        padding:0;
+        margin:0;
       }
-      .rounded-box, .via-badge, .footer-box, .prescription-area { border-color: #d1d5db !important; }
-      ::placeholder { color: transparent; }
-    }
+      body{ background:white; padding-right:0; }
+      .floating-ui, .toast{ display:none !important; }
+      #pages-container{ gap:0; max-width:none; }
 
-    @media screen and (max-width: 800px) {
-      .paper-page { transform: scale(0.45); transform-origin: top center; margin-bottom: -150mm; }
-      .top-header { height: auto; padding-bottom: 30px; }
+      .paper-page{
+        width:210mm;
+        height:297mm;
+        margin:0;
+        box-shadow:none;
+        outline:none;
+        transform:none !important;
+        page-break-after:always;
+        page-break-inside:avoid;
+        break-after:page;
+        break-inside:avoid;
+        padding:var(--page-pad-y) var(--page-pad-x);
+      }
+      .paper-page:last-child{ page-break-after:auto; break-after:auto; }
+
+      .via2-page{ background:white !important; }
+      .via2-page .layout-container *{ color:var(--color-gray-dark) !important; }
+
+      [contenteditable="true"]:focus{ outline:none !important; }
+      [contenteditable="true"]:hover{ background:transparent !important; }
     }
   </style>
 </head>
 
 <body>
-  <!-- MENU DE OPÇÕES (não imprime) -->
-  <div class="screen-controls" id="controls">
-    <div class="controls-header">
-      <h4 style="margin:0;">Opções</h4>
-      <button type="button" id="btnToggleControls" class="btn-toggle-controls" aria-expanded="true" title="Minimizar/Expandir">
-        <i class="fa-solid fa-chevron-down"></i>
-      </button>
+  <div class="floating-ui" id="floating-ui">
+    <div class="floating-ui-title">📋 Ferramentas</div>
+
+    <div class="floating-section">
+      <div class="floating-section-label">Formatação (Prescrição)</div>
+      <div class="btn-group">
+        <!-- (1) mousedown para NÃO perder seleção/foco -->
+        <button class="btn btn-format bold" onmousedown="event.preventDefault(); formatText('bold')" title="Negrito (Ctrl+B)">B</button>
+        <button class="btn btn-format italic" onmousedown="event.preventDefault(); formatText('italic')" title="Itálico (Ctrl+I)">I</button>
+        <button class="btn btn-format underline" onmousedown="event.preventDefault(); formatText('underline')" title="Sublinhado (Ctrl+U)">U</button>
+      </div>
     </div>
 
-    <div class="controls-body">
-      <small style="color:#a1a1aa;">Preencha a 1ª via. A 2ª via é automática.</small>
-
-      <div class="controls-row">
-        <button class="btn btn-primary" type="button" onclick="window.print()">
-          <i class="fa-solid fa-print"></i> IMPRIMIR
-        </button>
-
-        <button class="btn btn-danger" id="btnClearAll" type="button">
-          <i class="fa-solid fa-eraser"></i> LIMPAR TUDO
-        </button>
-
-        <button class="btn btn-secondary" id="btnSaveIssuer" type="button">
-          <i class="fa-solid fa-floppy-disk"></i> SALVAR DADOS (EMITENTE)
-        </button>
-
-        <button class="btn btn-secondary" id="btnFillIssuer" type="button" hidden>
-          <i class="fa-solid fa-wand-magic-sparkles"></i> PREENCHER DADOS SALVOS
-        </button>
-
-        <div style="margin-top:8px; font-size: 12px; color:#a1a1aa;">
-          Formatação na prescrição (Ctrl+B / Ctrl+I / Ctrl+U):
-          <div class="format-row">
-            <button class="btn-mini" id="btnBold" type="button"><b>B</b></button>
-            <button class="btn-mini" id="btnItalic" type="button"><i>I</i></button>
-            <button class="btn-mini" id="btnUnderline" type="button"><u>U</u></button>
-          </div>
-        </div>
+    <div class="floating-section">
+      <div class="floating-section-label">Tamanho da fonte (Prescrição)</div>
+      <div class="btn-group-spaced">
+        <button class="btn btn-font" onclick="decreaseFontSize()" title="Diminuir (Ctrl+-)" id="btn-font-decrease">A-</button>
+        <div class="font-size-display" id="font-size-display">11pt</div>
+        <button class="btn btn-font" onclick="increaseFontSize()" title="Aumentar (Ctrl++)" id="btn-font-increase">A+</button>
       </div>
+      <div class="active-page-indicator" id="active-page-indicator">Página <span>1</span></div>
+    </div>
+
+    <div class="floating-section">
+      <div class="floating-section-label">Páginas (Prescrição)</div>
+      <button class="btn btn-info btn-full" onclick="addManualPage()">📄 Nova Página</button>
+      <div class="page-count-badge">Total: <span id="page-count">1</span> par(es)</div>
+    </div>
+
+    <div class="floating-section">
+      <div class="floating-section-label">Emitente</div>
+      <button class="btn btn-success btn-full" onclick="saveIssuer()">💾 Salvar Dados (Emitente)</button>
+      <button class="btn btn-success btn-full" onclick="fillIssuer()" id="btn-fill-issuer" disabled>✨ Preencher Salvos</button>
+    </div>
+
+    <div class="floating-section">
+      <div class="floating-section-label">Ações</div>
+      <button class="btn btn-primary btn-full" onclick="handlePrint()">🖨️ Imprimir</button>
+      <button class="btn btn-warning btn-full" onclick="clearPrescription()">🧹 Limpar Prescrição</button>
+      <button class="btn btn-danger btn-full" onclick="resetAll()">⚠️ Resetar Tudo</button>
     </div>
   </div>
 
-  <!-- VIA 1 -->
-  <section class="paper-page" id="via1">
-    <div class="layout-container">
-      <div class="top-header">
-        <div class="main-title">Receituário de Controle Especial</div>
-        <div class="via-badge">1ª VIA - FARMÁCIA/DROGARIA</div>
-      </div>
+  <div id="pages-container"></div>
+  <div id="rx-measurer" aria-hidden="true"></div>
+  <div class="toast" id="toast"></div>
 
-      <div class="rounded-box">
-        <span class="box-label-float">Identificação do Emitente</span>
-
-        <div class="issuer-grid">
-          <div class="col">
-            <span class="label-sm">Nome Completo do Profissional</span>
-            <input type="text" class="input-sync autofit" data-field="emitente_nome"
-                   placeholder="Nome do Médico Exemplo" style="font-weight: 600; font-size: 11pt;">
-          </div>
-
-          <div class="row-group">
-            <div class="col" style="width: 100px;">
-              <span class="label-sm">CRM</span>
-              <input type="text" class="input-sync" data-field="emitente_crm" placeholder="00000">
-            </div>
-
-            <div class="col" style="width: 40px;">
-              <span class="label-sm">UF</span>
-              <input type="text" class="input-sync" data-field="emitente_uf" placeholder="SP">
-            </div>
-
-            <div style="width: 1px; background: #e5e7eb; margin: 4px 0;"></div>
-
-            <div class="col" style="flex: 1;">
-              <span class="label-sm">Endereço Completo e Telefone</span>
-              <input type="text" class="input-sync" data-field="emitente_end" placeholder="Av. Exemplo, 123 - (11) 9999-9999">
-            </div>
-          </div>
-
-          <div class="col">
-            <span class="label-sm">Cidade</span>
-            <input type="text" class="input-sync" data-field="emitente_cidade" placeholder="São Paulo">
-          </div>
+  <template id="via1-template">
+    <section class="paper-page via1-page">
+      <div class="layout-container">
+        <div class="top-header">
+          <div class="main-title">Receituário de Controle Especial</div>
+          <div class="via-badge">1ª VIA - FARMÁCIA/DROGARIA</div>
         </div>
-      </div>
 
-      <div class="section-block">
-        <span class="label-title">Paciente</span>
-        <input type="text" class="input-sync input-line" data-field="paciente_nome">
-      </div>
+        <!-- Emitente reduzido: Nome + CRM ao lado + Cidade -->
+        <div class="rounded-box">
+          <span class="box-label-float">Identificação do Emitente</span>
 
-      <div class="section-block" style="margin-top: -2mm;">
-        <span class="label-title">Endereço</span>
-        <input type="text" class="input-sync input-line" data-field="paciente_end">
-      </div>
+          <div class="issuer-grid">
+            <div class="row-group">
+              <div class="col" style="flex:1;">
+                <span class="label-sm">Nome Completo do Profissional</span>
+                <input type="text" class="sync-input" data-sync="emitente_nome" placeholder="Nome do Profissional" style="font-weight:600;">
+              </div>
 
-      <div style="margin-top: 2mm;">
-        <span class="label-title">Prescrição</span>
-      </div>
+              <div class="col" style="width: 42mm;">
+                <span class="label-sm">CRM</span>
+                <input type="text" class="sync-input" data-sync="emitente_crm" placeholder="00000">
+              </div>
+            </div>
 
-      <div class="prescription-area">
-        <div class="presc-editor input-sync"
-             id="presc1"
-             data-field="prescricao"
-             contenteditable="true"
-             spellcheck="false"></div>
-      </div>
-
-      <div class="footer">
-        <div class="signature-area">
-          <div style="width: 30%;">
-            <span class="label-title" style="font-weight: 700; font-size: 0.7rem;">Data</span>
-            <input type="text" class="input-sync input-line" data-field="data" style="text-align: center;">
-          </div>
-
-          <div style="flex: 1; text-align: center;">
-            <div style="border-top: 1px solid #000; padding-top: 2px;">
-              <span class="label-title" style="font-weight: 600; font-size: 0.7rem;">Assinatura e Carimbo do Médico</span>
+            <div class="row-group">
+              <div class="col" style="flex:1;">
+                <span class="label-sm">Cidade</span>
+                <input type="text" class="sync-input" data-sync="emitente_cidade" placeholder="Cidade">
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="footer-cols">
-          <div class="footer-box" style="flex: 1.4;">
-            <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+        <div class="section-block">
+          <span class="label-title">Paciente</span>
+          <input type="text" class="sync-input input-line" data-sync="paciente_nome">
+        </div>
 
-            <div class="buyer-grid">
-              <div class="buyer-row">
-                <span class="buyer-label">Nome:</span>
-                <!-- Fonte diminui automaticamente se não couber -->
-                <input class="buyer-input autofit" data-autofit-min="8" type="text">
-              </div>
+        <div class="section-block" style="margin-top: -1mm;">
+          <!-- (3) Endereço -> Local -->
+          <span class="label-title">Local</span>
+          <input type="text" class="sync-input input-line" data-sync="paciente_end">
+        </div>
 
-              <div class="buyer-row">
-                <span class="buyer-label">Ident:</span>
-                <input class="buyer-input" type="text" style="flex:1">
-                <span class="buyer-label" style="margin-left: 5px;">Org:</span>
-                <input class="buyer-input" type="text" style="width: 40px; flex:none;">
-              </div>
+        <div style="margin-top: 1mm;">
+          <span class="label-title">Prescrição</span>
+        </div>
 
-              <div class="buyer-row">
-                <span class="buyer-label">End:</span>
-                <input class="buyer-input" type="text">
-              </div>
+        <div class="prescription-area">
+          <div class="presc-editor presc-editable"
+               data-rx="1"
+               contenteditable="true"
+               spellcheck="false"></div>
+        </div>
 
-              <div class="buyer-row">
-                <span class="buyer-label">Cid:</span>
-                <input class="buyer-input" type="text" style="flex:2">
-                <span class="buyer-label" style="margin-left: 5px;">UF:</span>
-                <input class="buyer-input" type="text" style="width: 25px; flex:none;">
-                <span class="buyer-label" style="margin-left: 5px;">Tel:</span>
-                <input class="buyer-input" type="text" style="flex:1.5">
+        <div class="footer">
+          <div class="signature-area">
+            <div style="width: 32%;">
+              <span class="label-title" style="font-weight: 700;">Data</span>
+              <input type="text" class="sync-input input-line" data-sync="data" style="text-align: center;">
+            </div>
+
+            <div style="flex: 1; text-align: center;">
+              <div style="border-top: 1px solid #000; padding-top: 2px;">
+                <span class="label-title" style="font-weight: 600;">Assinatura e Carimbo do Médico</span>
               </div>
             </div>
           </div>
 
-          <div class="footer-box" style="flex: 1;">
-            <div class="footer-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #d4d4d8;">
-              <small>(Carimbo da Farmácia)</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+          <div class="footer-cols">
+            <div class="footer-box" style="flex: 1.4;">
+              <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
 
-  <!-- VIA 2 -->
-  <section class="paper-page readonly-mode" id="via2">
-    <div class="layout-container">
-      <div class="top-header">
-        <div class="main-title">Receituário de Controle Especial</div>
-        <div class="via-badge">2ª VIA - PACIENTE</div>
-      </div>
+              <div class="buyer-grid">
+                <div class="buyer-row">
+                  <span class="buyer-label">Nome:</span>
+                  <input class="buyer-input" type="text">
+                </div>
 
-      <div class="rounded-box">
-        <span class="box-label-float">Identificação do Emitente</span>
+                <div class="buyer-row">
+                  <span class="buyer-label">Ident:</span>
+                  <input class="buyer-input" type="text" style="flex:1">
+                  <span class="buyer-label" style="margin-left: 5px;">Org:</span>
+                  <input class="buyer-input" type="text" style="width: 40px; flex:none;">
+                </div>
 
-        <div class="issuer-grid">
-          <div class="col">
-            <span class="label-sm">Nome Completo do Profissional</span>
-            <input type="text" data-target="emitente_nome" style="font-weight: 600;">
-          </div>
+                <div class="buyer-row">
+                  <span class="buyer-label">End:</span>
+                  <input class="buyer-input" type="text">
+                </div>
 
-          <div class="row-group">
-            <div class="col" style="width: 100px;">
-              <span class="label-sm">CRM</span>
-              <input type="text" data-target="emitente_crm">
-            </div>
-
-            <div class="col" style="width: 40px;">
-              <span class="label-sm">UF</span>
-              <input type="text" data-target="emitente_uf">
+                <div class="buyer-row">
+                  <span class="buyer-label">Cid:</span>
+                  <input class="buyer-input" type="text" style="flex:2">
+                  <span class="buyer-label" style="margin-left: 5px;">UF:</span>
+                  <input class="buyer-input" type="text" style="width: 25px; flex:none;">
+                  <span class="buyer-label" style="margin-left: 5px;">Tel:</span>
+                  <input class="buyer-input" type="text" style="flex:1.5">
+                </div>
+              </div>
             </div>
 
-            <div style="width: 1px; background: #e5e7eb; margin: 4px 0;"></div>
-
-            <div class="col" style="flex: 1;">
-              <span class="label-sm">Endereço Completo e Telefone</span>
-              <input type="text" data-target="emitente_end">
-            </div>
-          </div>
-
-          <div class="col">
-            <span class="label-sm">Cidade</span>
-            <input type="text" data-target="emitente_cidade">
-          </div>
-        </div>
-      </div>
-
-      <div class="section-block">
-        <span class="label-title">Paciente</span>
-        <input type="text" class="input-line" data-target="paciente_nome">
-      </div>
-
-      <div class="section-block" style="margin-top: -2mm;">
-        <span class="label-title">Endereço</span>
-        <input type="text" class="input-line" data-target="paciente_end">
-      </div>
-
-      <div style="margin-top: 2mm;">
-        <span class="label-title">Prescrição</span>
-      </div>
-
-      <div class="prescription-area">
-        <div class="presc-editor" id="presc2" data-target="prescricao" contenteditable="false" spellcheck="false"></div>
-      </div>
-
-      <div class="footer">
-        <div class="signature-area">
-          <div style="width: 30%;">
-            <span class="label-title" style="font-weight: 700; font-size: 0.7rem;">Data</span>
-            <input type="text" class="input-line" data-target="data" style="text-align: center;">
-          </div>
-
-          <div style="flex: 1; text-align: center;">
-            <div style="border-top: 1px solid #000; padding-top: 2px;">
-              <span class="label-title" style="font-weight: 600; font-size: 0.7rem;">Assinatura e Carimbo do Médico</span>
+            <div class="footer-box" style="flex: 1;">
+              <div class="footer-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
+              <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #d4d4d8;">
+                <small>(Carimbo da Farmácia)</small>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="footer-cols">
-          <div class="footer-box" style="flex: 1.4;">
-            <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
-          </div>
+        <span class="page-indicator"></span>
+      </div>
+    </section>
+  </template>
 
-          <div class="footer-box" style="flex: 1;">
-            <div class="footer-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #d4d4d8;">
-              <small>(Carimbo da Farmácia)</small>
+  <template id="via2-template">
+    <section class="paper-page via2-page readonly-mode">
+      <div class="layout-container">
+        <div class="top-header">
+          <div class="main-title">Receituário de Controle Especial</div>
+          <div class="via-badge">2ª VIA - PACIENTE</div>
+        </div>
+
+        <div class="rounded-box">
+          <span class="box-label-float">Identificação do Emitente</span>
+
+          <div class="issuer-grid">
+            <div class="row-group">
+              <div class="col" style="flex:1;">
+                <span class="label-sm">Nome Completo do Profissional</span>
+                <input type="text" data-mirror="emitente_nome" style="font-weight:600;">
+              </div>
+
+              <div class="col" style="width: 42mm;">
+                <span class="label-sm">CRM</span>
+                <input type="text" data-mirror="emitente_crm">
+              </div>
+            </div>
+
+            <div class="row-group">
+              <div class="col" style="flex:1;">
+                <span class="label-sm">Cidade</span>
+                <input type="text" data-mirror="emitente_cidade">
+              </div>
             </div>
           </div>
         </div>
+
+        <div class="section-block">
+          <span class="label-title">Paciente</span>
+          <input type="text" class="input-line" data-mirror="paciente_nome">
+        </div>
+
+        <div class="section-block" style="margin-top: -1mm;">
+          <span class="label-title">Local</span>
+          <input type="text" class="input-line" data-mirror="paciente_end">
+        </div>
+
+        <div style="margin-top: 1mm;">
+          <span class="label-title">Prescrição</span>
+        </div>
+
+        <div class="prescription-area">
+          <div class="presc-editor presc-mirror"
+               data-rx-mirror="1"
+               contenteditable="false"
+               spellcheck="false"></div>
+        </div>
+
+        <div class="footer">
+          <div class="signature-area">
+            <div style="width: 32%;">
+              <span class="label-title" style="font-weight: 700;">Data</span>
+              <input type="text" class="input-line" data-mirror="data" style="text-align: center;">
+            </div>
+
+            <div style="flex: 1; text-align: center;">
+              <div style="border-top: 1px solid #000; padding-top: 2px;">
+                <span class="label-title" style="font-weight: 600;">Assinatura e Carimbo do Médico</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-cols">
+            <div class="footer-box" style="flex: 1.4;">
+              <div class="footer-title">IDENTIFICAÇÃO DO COMPRADOR</div>
+            </div>
+
+            <div class="footer-box" style="flex: 1;">
+              <div class="footer-title">IDENTIFICAÇÃO DO FORNECEDOR</div>
+              <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #d4d4d8;">
+                <small>(Carimbo da Farmácia)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="page-indicator"></span>
       </div>
-    </div>
-  </section>
+    </section>
+  </template>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const STORAGE_KEY_ISSUER = 'receituario.emitente.v1';
-      const STORAGE_KEY_CONTROLS = 'receituario.controlsCollapsed.v1';
-      const ISSUER_FIELDS = ['emitente_nome', 'emitente_crm', 'emitente_uf', 'emitente_end', 'emitente_cidade'];
+    // ============================================
+    // CONFIG
+    // ============================================
+    const DEFAULT_FONT_SIZE = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rx-font-default')) || 11;
+    const MIN_FONT_SIZE = 7;
+    const MAX_FONT_SIZE = 11.5;
+    const FONT_STEP = 0.25;
 
-      const $  = (sel, ctx = document) => ctx.querySelector(sel);
-      const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+    const STORAGE_KEY_ISSUER = 'receituario.emitente.v4.ce';
+    const ISSUER_FIELDS = ['emitente_nome','emitente_crm','emitente_cidade'];
 
-      /* ===== Data padrão ===== */
-      const dateField = $('[data-field="data"]');
-      if (dateField && !dateField.value) {
-        dateField.value = new Date().toLocaleDateString('pt-BR');
+    // ============================================
+    // STATE
+    // ============================================
+    const rxState = { html: '', fontSize: DEFAULT_FONT_SIZE };
+
+    let pairs = [];
+    let activePairIndex = 0;
+    let minPairCount = 1;
+
+    let isProcessing = false;
+    let rxScheduled = false;
+    let isComposingRx = false;
+    let pendingRxSelection = null;
+
+    // (1) guarda última seleção na prescrição para usar ao clicar nos botões
+    let lastRxSelection = { wasInRx:false, start:0, end:0 };
+
+    const undoStack = [];
+    const MAX_UNDO_STACK = 50;
+
+    // ============================================
+    // ELEMENTS
+    // ============================================
+    const pagesContainer = document.getElementById('pages-container');
+    const via1Template = document.getElementById('via1-template');
+    const via2Template = document.getElementById('via2-template');
+    const rxMeasurer = document.getElementById('rx-measurer');
+
+    const toast = document.getElementById('toast');
+    const fontSizeDisplay = document.getElementById('font-size-display');
+    const pageCountDisplay = document.getElementById('page-count');
+    const activePageIndicator = document.getElementById('active-page-indicator');
+    const btnFontDecrease = document.getElementById('btn-font-decrease');
+    const btnFontIncrease = document.getElementById('btn-font-increase');
+    const btnFillIssuer = document.getElementById('btn-fill-issuer');
+
+    // ============================================
+    // UI helpers
+    // ============================================
+    function clampFontSize(size){
+      return Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, size));
+    }
+
+    function formatPt(size){
+      const s = (Math.round(size * 100) / 100).toFixed(2).replace(/\.?0+$/, '');
+      return s + 'pt';
+    }
+
+    function showToast(message, type='default', duration=2500){
+      toast.textContent = message;
+      toast.className = 'toast show' + (type === 'success' ? ' success' : '');
+      setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function updateUI(){
+      fontSizeDisplay.textContent = formatPt(rxState.fontSize);
+      btnFontDecrease.disabled = rxState.fontSize <= MIN_FONT_SIZE;
+      btnFontIncrease.disabled = rxState.fontSize >= MAX_FONT_SIZE;
+
+      activePageIndicator.innerHTML = `Página <span>${activePairIndex + 1}</span>`;
+      pageCountDisplay.textContent = pairs.length;
+    }
+
+    function setActivePair(index){
+      activePairIndex = Math.max(0, Math.min(index, pairs.length - 1));
+      pairs.forEach((p, i) => {
+        p.via1Page.classList.toggle('active', i === activePairIndex);
+        p.via2Page.classList.toggle('active', i === activePairIndex);
+      });
+      updateUI();
+    }
+
+    // ============================================
+    // CREATE PAGES (pairs)
+    // ============================================
+    function refreshPairMeta(){
+      pairs.forEach((p, idx) => {
+        p.via1Page.dataset.pairIndex = String(idx);
+        p.via2Page.dataset.pairIndex = String(idx);
+
+        const ind1 = p.via1Page.querySelector('.page-indicator');
+        const ind2 = p.via2Page.querySelector('.page-indicator');
+        if (ind1) ind1.textContent = `Página ${idx + 1}`;
+        if (ind2) ind2.textContent = `Página ${idx + 1}`;
+      });
+
+      if (activePairIndex >= pairs.length) activePairIndex = pairs.length - 1;
+      if (activePairIndex < 0) activePairIndex = 0;
+    }
+
+    function createPair(){
+      const via1Frag = via1Template.content.cloneNode(true);
+      const via2Frag = via2Template.content.cloneNode(true);
+
+      const via1Page = via1Frag.querySelector('.via1-page');
+      const via2Page = via2Frag.querySelector('.via2-page');
+
+      pagesContainer.appendChild(via1Page);
+      pagesContainer.appendChild(via2Page);
+
+      const rx1 = via1Page.querySelector('.presc-editable');
+      const rx2 = via2Page.querySelector('.presc-mirror');
+
+      const pair = { via1Page, via2Page, rx1, rx2 };
+      pairs.push(pair);
+
+      setupPairEvents(pair);
+      refreshPairMeta();
+      return pair;
+    }
+
+    function ensurePairCount(desiredCount){
+      const target = Math.max(1, desiredCount, minPairCount);
+
+      while (pairs.length < target){
+        const p = createPair();
+        applyFieldsFromFirstPair(p);
       }
 
-      /* ===== Menu minimizar ===== */
-      const controls = $('#controls');
-      const btnToggleControls = $('#btnToggleControls');
-
-      function setControlsCollapsed(collapsed) {
-        if (!controls || !btnToggleControls) return;
-        controls.classList.toggle('is-collapsed', collapsed);
-        btnToggleControls.setAttribute('aria-expanded', String(!collapsed));
-        try { localStorage.setItem(STORAGE_KEY_CONTROLS, collapsed ? '1' : '0'); } catch {}
+      while (pairs.length > target && pairs.length > minPairCount){
+        const last = pairs.pop();
+        last.via1Page.remove();
+        last.via2Page.remove();
       }
 
-      if (controls && btnToggleControls) {
-        btnToggleControls.addEventListener('click', () => {
-          setControlsCollapsed(!controls.classList.contains('is-collapsed'));
-        });
+      refreshPairMeta();
+    }
 
-        // restaura estado
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY_CONTROLS);
-          if (saved === '1') setControlsCollapsed(true);
-        } catch {}
-      }
+    function addManualPage(){
+      saveState();
+      minPairCount += 1;
+      repaginateAndRender(getRxGlobalSelection());
+      setActivePair(minPairCount - 1);
+      pairs[minPairCount - 1]?.rx1?.focus();
+      showToast('Nova página adicionada');
+    }
 
-      /* ===== Auto-fit de fonte (inputs com .autofit) ===== */
-      const _fitCanvas = document.createElement('canvas');
-      const _fitCtx = _fitCanvas.getContext('2d');
+    // ============================================
+    // SYNC FIELDS
+    // ============================================
+    function setFieldAll(field, value){
+      pairs.forEach(p => {
+        p.via1Page.querySelectorAll(`[data-sync="${field}"]`).forEach(el => el.value = value);
+        p.via2Page.querySelectorAll(`[data-mirror="${field}"]`).forEach(el => el.value = value);
+      });
+    }
 
-      function fitTextToInput(input) {
-        const style = getComputedStyle(input);
-        const maxPx = parseFloat(style.fontSize) || 12;
-        const minPx = parseFloat(input.dataset.autofitMin || '') || Math.max(8, maxPx * 0.7);
+    function getFieldFromFirst(field){
+      const first = pairs[0];
+      if (!first) return '';
+      const el = first.via1Page.querySelector(`[data-sync="${field}"]`);
+      return el?.value ?? '';
+    }
 
-        // reset
-        input.style.fontSize = `${maxPx}px`;
+    function applyFieldsFromFirstPair(){
+      if (!pairs[0]) return;
+      const fields = [...ISSUER_FIELDS, 'paciente_nome', 'paciente_end', 'data'];
+      fields.forEach(f => setFieldAll(f, getFieldFromFirst(f)));
+    }
 
-        const fontFamily = style.fontFamily;
-        const fontWeight = style.fontWeight;
-        const value = input.value || input.placeholder || '';
+    // ============================================
+    // RX selection offsets
+    // ============================================
+    function closestRxEditable(node){
+      if (!node) return null;
+      const el = node.nodeType === 1 ? node : node.parentElement;
+      return el?.closest?.('.presc-editable') || null;
+    }
 
-        const padL = parseFloat(style.paddingLeft) || 0;
-        const padR = parseFloat(style.paddingRight) || 0;
-        const available = Math.max(0, input.clientWidth - padL - padR - 2);
-
-        let size = maxPx;
-        while (size > minPx) {
-          _fitCtx.font = `${fontWeight} ${size}px ${fontFamily}`;
-          const w = _fitCtx.measureText(value).width;
-          if (w <= available) break;
-          size -= 0.25;
-        }
-        input.style.fontSize = `${size}px`;
-      }
-
-      function setupAutofit() {
-        const autofits = $$('.autofit');
-        autofits.forEach(el => {
-          const handler = () => fitTextToInput(el);
-          el.addEventListener('input', handler);
-          window.addEventListener('resize', handler);
-          handler();
-        });
-      }
-      setupAutofit();
-
-      /* ===== Prescrição (editor) ===== */
-      const presc1 = $('#presc1');
-      const presc2 = $('#presc2');
-
-      // Cola como texto puro (reduz “bugs” de colagem com formatação estranha)
-      if (presc1) {
-        presc1.addEventListener('paste', (e) => {
-          e.preventDefault();
-          const text = (e.clipboardData || window.clipboardData).getData('text');
-          // transforma quebras de linha em <br>
-          const html = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\r\n|\r|\n/g, '<br>');
-          document.execCommand('insertHTML', false, html);
-          presc1.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-      }
-
-      // Sanitização leve ao sair do campo (mantém só b/i/u/br e texto)
-      function sanitizePrescHTML(editor) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(`<div>${editor.innerHTML}</div>`, 'text/html');
-        const root = doc.body.firstChild;
-
-        function esc(s) {
-          return s
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-        }
-
-        function walk(node) {
-          if (node.nodeType === Node.TEXT_NODE) return esc(node.nodeValue || '');
-          if (node.nodeType !== Node.ELEMENT_NODE) return '';
-
-          const tag = node.tagName.toUpperCase();
-          const children = Array.from(node.childNodes).map(walk).join('');
-
-          if (tag === 'BR') return '<br>';
-          if (tag === 'B' || tag === 'STRONG') return `<b>${children}</b>`;
-          if (tag === 'I' || tag === 'EM') return `<i>${children}</i>`;
-          if (tag === 'U') return `<u>${children}</u>`;
-          if (tag === 'DIV' || tag === 'P') return `${children}<br>`;
-          if (tag === 'SPAN') return children;
-
-          // outros: ignora tag, preserva conteúdo
-          return children;
-        }
-
-        let out = Array.from(root.childNodes).map(walk).join('');
-        // remove <br> extras no final
-        out = out.replace(/(<br>\s*)+$/g, '');
-        editor.innerHTML = out;
-      }
-
-      if (presc1) {
-        presc1.addEventListener('blur', () => {
-          sanitizePrescHTML(presc1);
-          presc1.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-      }
-
-      // Clique em qualquer “linha” abaixo do conteúdo: cria linhas em branco até lá
-      function placeCaretAtEnd(el) {
-        el.focus();
+    function caretOffsetWithin(root, container, offset){
+      try{
         const range = document.createRange();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
+        range.setStart(root, 0);
+        range.setEnd(container, offset);
+        return range.toString().length;
+      } catch {
+        return 0;
+      }
+    }
+
+    function getRxGlobalSelection(){
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return { wasInRx:false, start:0, end:0 };
+
+      const range = sel.getRangeAt(0);
+      const startRx = closestRxEditable(range.startContainer);
+      const endRx = closestRxEditable(range.endContainer);
+      if (!startRx || !endRx) return { wasInRx:false, start:0, end:0 };
+
+      const startBase = parseInt(startRx.dataset.start || '0', 10) || 0;
+      const endBase = parseInt(endRx.dataset.start || '0', 10) || 0;
+
+      const localStart = caretOffsetWithin(startRx, range.startContainer, range.startOffset);
+      const localEnd = caretOffsetWithin(endRx, range.endContainer, range.endOffset);
+
+      const globalStart = startBase + localStart;
+      const globalEnd = endBase + localEnd;
+
+      return { wasInRx:true, start:Math.min(globalStart, globalEnd), end:Math.max(globalStart, globalEnd) };
+    }
+
+    function resolveTextNodeOffset(root, offset){
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      let node = walker.nextNode();
+
+      if (!node){
+        const t = document.createTextNode('');
+        root.appendChild(t);
+        return { node:t, offset:0 };
       }
 
-      function getLineCountApprox(editor) {
-        const t = (editor.innerText || '').replace(/\u00A0/g, '');
-        const lines = t.split('\n');
-        return Math.max(1, lines.length);
+      let remaining = offset;
+      let last = node;
+
+      while (node){
+        last = node;
+        const len = node.nodeValue.length;
+        if (remaining <= len) return { node, offset: remaining };
+        remaining -= len;
+        node = walker.nextNode();
       }
 
-      if (presc1) {
-        presc1.addEventListener('mousedown', (e) => {
-          const cs = getComputedStyle(presc1);
-          const lineHeight = parseFloat(cs.lineHeight) || 18;
-          const padTop = parseFloat(cs.paddingTop) || 0;
+      return { node:last, offset:last.nodeValue.length };
+    }
 
-          const y = e.offsetY + presc1.scrollTop - padTop;
-          const clickedLine = Math.max(0, Math.floor(y / lineHeight));
-          const currentLineCount = getLineCountApprox(presc1);
+    function findRxByOffset(globalOffset){
+      for (const p of pairs){
+        const el = p.rx1;
+        if (!el) continue;
+        const s = parseInt(el.dataset.start || '0', 10) || 0;
+        const e = parseInt(el.dataset.end || '0', 10) || 0;
+        if (globalOffset >= s && globalOffset <= e) return { el, start:s, end:e };
+      }
+      const last = pairs[pairs.length - 1]?.rx1;
+      if (last){
+        const s = parseInt(last.dataset.start || '0', 10) || 0;
+        const e = parseInt(last.dataset.end || '0', 10) || 0;
+        return { el:last, start:s, end:e };
+      }
+      return null;
+    }
 
-          if (clickedLine >= currentLineCount) {
-            e.preventDefault();
+    function findPairIndexForOffset(globalOffset){
+      for (let i=0;i<pairs.length;i++){
+        const el = pairs[i].rx1;
+        if (!el) continue;
+        const s = parseInt(el.dataset.start || '0', 10) || 0;
+        const e = parseInt(el.dataset.end || '0', 10) || 0;
+        if (globalOffset >= s && globalOffset <= e) return i;
+      }
+      return Math.max(0, pairs.length - 1);
+    }
 
-            const need = clickedLine - currentLineCount + 1;
-            placeCaretAtEnd(presc1);
-            for (let i = 0; i < need; i++) {
-              document.execCommand('insertHTML', false, '<br>');
+    function getRxTotalTextLength(){
+      let len = 0;
+      for (const p of pairs){
+        len += (p.rx1?.textContent || '').length;
+      }
+      return len;
+    }
+
+    function restoreRxSelection(globalStart, globalEnd){
+      const total = getRxTotalTextLength();
+      const s = Math.max(0, Math.min(globalStart, total));
+      const e = Math.max(0, Math.min(globalEnd, total));
+
+      const startTarget = findRxByOffset(s);
+      const endTarget = findRxByOffset(e);
+      if (!startTarget || !endTarget) return;
+
+      const startLocal = s - startTarget.start;
+      const endLocal = e - endTarget.start;
+
+      const startPos = resolveTextNodeOffset(startTarget.el, startLocal);
+      const endPos = resolveTextNodeOffset(endTarget.el, endLocal);
+
+      const range = document.createRange();
+      range.setStart(startPos.node, startPos.offset);
+      range.setEnd(endPos.node, endPos.offset);
+
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      startTarget.el.focus();
+    }
+
+    // ============================================
+    // RX text insertion helpers
+    // ============================================
+    // (2) usa ZWSP no fim para garantir que 1 enter já "apareça"
+    const ZWSP = '\u200B';
+
+    function normalizeLineEndings(s){
+      // mantém ZWSP (não remove) para não voltar o problema do enter no fim
+      return (s || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\u00A0/g, ' ');
+    }
+
+    function insertTextAtSelection(text){
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+
+      const node = document.createTextNode(text);
+      range.insertNode(node);
+
+      range.setStartAfter(node);
+      range.collapse(true);
+
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      node.parentNode?.normalize?.();
+    }
+
+    // calcula se caret está no final do editor atual
+    function isCaretAtEndOf(editor){
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return false;
+      const r = sel.getRangeAt(0);
+      if (!editor.contains(r.startContainer)) return false;
+      const off = caretOffsetWithin(editor, r.startContainer, r.startOffset);
+      return off >= (editor.textContent || '').length;
+    }
+
+    // (2) Enter com 1 tecla
+    function insertNewline(editor){
+      const atEnd = isCaretAtEndOf(editor);
+      const txt = atEnd ? ('\n' + ZWSP) : '\n';
+      insertTextAtSelection(txt);
+    }
+
+    // ============================================
+    // Normalize Rx HTML (inline + \n)
+    // ============================================
+    function normalizeRxHTML(html){
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+
+      const allowedInline = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'SPAN']);
+      const blockTags = new Set(['DIV', 'P']);
+
+      function cloneWithAllowedStyle(el){
+        const clone = document.createElement(el.tagName.toLowerCase());
+        if (el.tagName === 'SPAN'){
+          const style = el.getAttribute('style') || '';
+          const kept = [];
+          style.split(';').map(s => s.trim()).filter(Boolean).forEach(pair => {
+            const [kRaw, vRaw] = pair.split(':');
+            if (!kRaw || !vRaw) return;
+            const k = kRaw.trim().toLowerCase();
+            const v = vRaw.trim().toLowerCase();
+            if (k === 'font-weight' || k === 'font-style' || k === 'text-decoration'){
+              kept.push(`${k}:${v}`);
             }
-            presc1.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+          if (kept.length) clone.setAttribute('style', kept.join(';'));
+        }
+        return clone;
+      }
+
+      function walk(node, outFrag, afterBlockNewline){
+        if (!node) return;
+
+        if (node.nodeType === Node.TEXT_NODE){
+          outFrag.appendChild(document.createTextNode(normalizeLineEndings(node.nodeValue)));
+          return;
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+        const tag = node.tagName;
+
+        if (tag === 'BR'){
+          outFrag.appendChild(document.createTextNode('\n'));
+          return;
+        }
+
+        if (blockTags.has(tag)){
+          const innerFrag = document.createDocumentFragment();
+          Array.from(node.childNodes).forEach(ch => walk(ch, innerFrag, true));
+          outFrag.appendChild(innerFrag);
+          if (afterBlockNewline){
+            const lastText = outFrag.lastChild && outFrag.lastChild.nodeType === Node.TEXT_NODE ? outFrag.lastChild.nodeValue : null;
+            if (!lastText || !lastText.endsWith('\n')) outFrag.appendChild(document.createTextNode('\n'));
           }
-        });
-      }
-
-      /* ===== Sync: via1 -> via2 ===== */
-      const sources = $$('.input-sync');
-
-      function syncFrom(sourceEl) {
-        const field = sourceEl.getAttribute('data-field');
-        const target = document.querySelector(`[data-target="${field}"]`);
-        if (!target) return;
-
-        const isEditor = sourceEl.classList.contains('presc-editor');
-        if (isEditor) {
-          target.innerHTML = sourceEl.innerHTML;
-          target.scrollTop = sourceEl.scrollTop;
-        } else {
-          target.value = sourceEl.value;
+          return;
         }
+
+        if (allowedInline.has(tag)){
+          const clone = cloneWithAllowedStyle(node);
+          Array.from(node.childNodes).forEach(ch => walk(ch, clone, false));
+          outFrag.appendChild(clone);
+          return;
+        }
+
+        Array.from(node.childNodes).forEach(ch => walk(ch, outFrag, false));
       }
 
-      sources.forEach(el => el.addEventListener('input', () => syncFrom(el)));
-      sources.forEach(el => el.dispatchEvent(new Event('input', { bubbles: true })));
+      const frag = document.createDocumentFragment();
+      Array.from(tmp.childNodes).forEach(ch => walk(ch, frag, false));
 
-      // Scroll espelhado prescrição
-      if (presc1 && presc2) {
-        presc1.addEventListener('scroll', () => {
-          presc2.scrollTop = presc1.scrollTop;
-        });
+      const wrap = document.createElement('div');
+      wrap.appendChild(frag);
+      let out = wrap.innerHTML;
+
+      out = out.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\u00A0/g, ' ');
+      return out;
+    }
+
+    function collectRxHTMLFromDOM(){
+      const raw = pairs.map(p => p.rx1?.innerHTML || '').join('');
+      return normalizeRxHTML(raw);
+    }
+
+    function syncRxMirrorsFromPages(){
+      pairs.forEach(p => {
+        p.rx1.style.fontSize = rxState.fontSize + 'pt';
+        p.rx2.style.fontSize = rxState.fontSize + 'pt';
+        p.rx2.innerHTML = p.rx1.innerHTML;
+      });
+    }
+
+    function scheduleRxRepaginate(){
+      if (isProcessing || isComposingRx) return;
+
+      pendingRxSelection = getRxGlobalSelection();
+      rxState.html = collectRxHTMLFromDOM();
+
+      if (rxScheduled) return;
+      rxScheduled = true;
+
+      requestAnimationFrame(() => {
+        rxScheduled = false;
+        repaginateAndRender(pendingRxSelection);
+      });
+    }
+
+    // ============================================
+    // Pagination (measurer)
+    // ============================================
+    function getRxMetrics(){
+      const baseEl = pairs[0]?.rx1;
+      if (!baseEl) return null;
+      return { baseEl, width: baseEl.clientWidth, height: baseEl.clientHeight };
+    }
+
+    function syncRxMeasurerStyles(metrics){
+      const cs = getComputedStyle(metrics.baseEl);
+      rxMeasurer.style.width = metrics.width + 'px';
+
+      rxMeasurer.style.fontFamily = cs.fontFamily;
+      rxMeasurer.style.fontSize = rxState.fontSize + 'pt';
+      rxMeasurer.style.fontWeight = cs.fontWeight;
+      rxMeasurer.style.fontStyle = cs.fontStyle;
+      rxMeasurer.style.letterSpacing = cs.letterSpacing;
+      rxMeasurer.style.lineHeight = cs.lineHeight;
+
+      rxMeasurer.style.whiteSpace = cs.whiteSpace;
+      rxMeasurer.style.wordBreak = cs.wordBreak;
+      rxMeasurer.style.overflowWrap = cs.overflowWrap || 'anywhere';
+
+      rxMeasurer.style.paddingTop = cs.paddingTop;
+      rxMeasurer.style.paddingRight = cs.paddingRight;
+      rxMeasurer.style.paddingBottom = cs.paddingBottom;
+      rxMeasurer.style.paddingLeft = cs.paddingLeft;
+    }
+
+    function domPosFromTextOffset(root, offset){
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      let node = walker.nextNode();
+
+      if (!node){
+        const t = document.createTextNode('');
+        root.appendChild(t);
+        return { node:t, offset:0 };
       }
 
-      /* ===== Formatação (negrito/itálico/sublinhado) ===== */
-      function focusPresc() { if (presc1) presc1.focus(); }
+      let remaining = offset;
+      let last = node;
 
-      function applyFormat(cmd) {
-        focusPresc();
-        document.execCommand(cmd, false, null);
-        if (presc1) presc1.dispatchEvent(new Event('input', { bubbles: true }));
+      while (node){
+        last = node;
+        const len = node.nodeValue.length;
+        if (remaining <= len) return { node, offset: remaining };
+        remaining -= len;
+        node = walker.nextNode();
       }
 
-      $('#btnBold')?.addEventListener('click', () => applyFormat('bold'));
-      $('#btnItalic')?.addEventListener('click', () => applyFormat('italic'));
-      $('#btnUnderline')?.addEventListener('click', () => applyFormat('underline'));
+      return { node:last, offset:last.nodeValue.length };
+    }
 
-      /* ===== Limpar tudo ===== */
-      $('#btnClearAll')?.addEventListener('click', () => {
-        const via1 = $('#via1');
-        if (!via1) return;
+    function cloneFragmentByTextOffsets(root, start, end){
+      const range = document.createRange();
+      const sPos = domPosFromTextOffset(root, start);
+      const ePos = domPosFromTextOffset(root, end);
+      range.setStart(sPos.node, sPos.offset);
+      range.setEnd(ePos.node, ePos.offset);
+      return range.cloneContents();
+    }
 
-        // limpa inputs text dentro da via1 (inclui comprador)
-        via1.querySelectorAll('input[type="text"]').forEach(el => {
-          el.value = '';
-          el.style.fontSize = '';
-        });
+    function fragmentHTMLFromOffsets(root, start, end){
+      const frag = cloneFragmentByTextOffsets(root, start, end);
+      const wrap = document.createElement('div');
+      wrap.appendChild(frag);
+      return wrap.innerHTML;
+    }
 
-        // limpa prescrição
-        if (presc1) presc1.innerHTML = '';
+    function fitsOffsets(root, start, end, maxHeight){
+      rxMeasurer.innerHTML = '';
+      rxMeasurer.appendChild(cloneFragmentByTextOffsets(root, start, end));
+      return rxMeasurer.scrollHeight <= (maxHeight + 0.5);
+    }
 
-        // data atual novamente
-        if (dateField) dateField.value = new Date().toLocaleDateString('pt-BR');
+    function adjustEndOffsetToBoundary(fullText, start, best){
+      if (best <= start + 1) return best;
+      if (best >= fullText.length) return best;
 
-        // re-sync
-        sources.forEach(el => el.dispatchEvent(new Event('input', { bubbles: true })));
+      let idx = best - 1;
+      let found = -1;
 
-        // re-autofit
-        $$('.autofit').forEach(fitTextToInput);
+      while (idx > start){
+        const ch = fullText[idx];
+        if (ch === '\n' || ch === ' ' || ch === '\t'){ found = idx + 1; break; }
+        idx--;
+      }
+
+      if (found <= start + 1) return best;
+      if (found < Math.floor(best * 0.6 + start * 0.4)) return best;
+      return found;
+    }
+
+    function repaginateAndRender(selection=null){
+      if (isProcessing) return;
+      const metrics = getRxMetrics();
+      if (!metrics) return;
+
+      isProcessing = true;
+      try{
+        syncRxMeasurerStyles(metrics);
+
+        const sourceRoot = document.createElement('div');
+        sourceRoot.style.whiteSpace = 'pre-wrap';
+        sourceRoot.style.wordBreak = 'break-word';
+        sourceRoot.style.overflowWrap = 'anywhere';
+        sourceRoot.innerHTML = normalizeRxHTML(rxState.html || '');
+
+        const fullText = sourceRoot.textContent || '';
+        const maxHeight = metrics.height;
+
+        const chunks = [];
+        const lens = [];
+
+        if (!fullText.length){
+          chunks.push('');
+          lens.push(0);
+        } else {
+          let pos = 0;
+          while (pos < fullText.length){
+            if (!fitsOffsets(sourceRoot, pos, pos + 1, maxHeight)){
+              chunks.push(fragmentHTMLFromOffsets(sourceRoot, pos, pos + 1));
+              lens.push(1);
+              pos += 1;
+              continue;
+            }
+
+            let lo = pos + 1;
+            let hi = fullText.length;
+            let best = pos + 1;
+
+            while (lo <= hi){
+              const mid = (lo + hi) >> 1;
+              if (fitsOffsets(sourceRoot, pos, mid, maxHeight)){
+                best = mid;
+                lo = mid + 1;
+              } else {
+                hi = mid - 1;
+              }
+            }
+
+            let end = adjustEndOffsetToBoundary(fullText, pos, best);
+            if (end <= pos) end = Math.min(pos + 1, fullText.length);
+
+            chunks.push(fragmentHTMLFromOffsets(sourceRoot, pos, end));
+            lens.push(end - pos);
+            pos = end;
+          }
+        }
+
+        ensurePairCount(chunks.length);
+
+        let offset = 0;
+        for (let i=0;i<pairs.length;i++){
+          const chunkHtml = chunks[i] ?? '';
+          const chunkLen = lens[i] ?? 0;
+
+          const rx1 = pairs[i].rx1;
+          const rx2 = pairs[i].rx2;
+
+          rx1.style.fontSize = rxState.fontSize + 'pt';
+          rx2.style.fontSize = rxState.fontSize + 'pt';
+
+          rx1.innerHTML = chunkHtml;
+          rx2.innerHTML = chunkHtml;
+
+          rx1.dataset.start = String(offset);
+          rx1.dataset.end = String(offset + chunkLen);
+
+          offset += chunkLen;
+        }
+
+        rxState.html = chunks.join('');
+
+        if (selection?.wasInRx){
+          const totalLen = lens.reduce((a,b) => a+b, 0);
+          const s = Math.max(0, Math.min(selection.start, totalLen));
+          const e = Math.max(0, Math.min(selection.end, totalLen));
+          restoreRxSelection(s, e);
+          setActivePair(findPairIndexForOffset(s));
+        }
+
+      } catch (err){
+        console.error('Erro na paginação:', err);
+      } finally {
+        isProcessing = false;
+        updateUI();
+      }
+    }
+
+    // ============================================
+    // Prescrição events
+    // ============================================
+    function setupRxEditor(rxEl){
+      if (!rxEl) return;
+      rxEl.spellcheck = false;
+
+      rxEl.addEventListener('compositionstart', () => { isComposingRx = true; });
+      rxEl.addEventListener('compositionend', () => { isComposingRx = false; scheduleRxRepaginate(); });
+
+      rxEl.addEventListener('beforeinput', (e) => {
+        if (isProcessing) return;
+        saveState();
+
+        // (2) Enter 1x = quebra de linha (inclui linha vazia)
+        if (e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak'){
+          e.preventDefault();
+          insertNewline(rxEl);
+          scheduleRxRepaginate();
+          return;
+        }
       });
 
-      /* ===== Salvar/Preencher Emitente ===== */
-      function getIssuerData() {
+      rxEl.addEventListener('input', () => {
+        if (isProcessing || isComposingRx) return;
+        scheduleRxRepaginate();
+      });
+
+      rxEl.addEventListener('paste', (e) => {
+        e.preventDefault();
+        if (isProcessing) return;
+        saveState();
+        const text = normalizeLineEndings((e.clipboardData || window.clipboardData).getData('text/plain') || '');
+        insertTextAtSelection(text);
+        scheduleRxRepaginate();
+      });
+
+      rxEl.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (isProcessing) return;
+        saveState();
+        const text = normalizeLineEndings(e.dataTransfer?.getData('text/plain') || '');
+        if (text){
+          insertTextAtSelection(text);
+          scheduleRxRepaginate();
+        }
+      });
+    }
+
+    function setupPairEvents(pair){
+      pair.via1Page.addEventListener('click', () => setActivePair(parseInt(pair.via1Page.dataset.pairIndex || '0', 10) || 0));
+      pair.via2Page.addEventListener('click', () => setActivePair(parseInt(pair.via2Page.dataset.pairIndex || '0', 10) || 0));
+
+      pair.via1Page.querySelectorAll('input, [contenteditable="true"]').forEach(el => {
+        el.addEventListener('focus', () => setActivePair(parseInt(pair.via1Page.dataset.pairIndex || '0', 10) || 0));
+      });
+
+      pair.via1Page.querySelectorAll('.sync-input').forEach(input => {
+        input.addEventListener('input', () => {
+          saveState();
+          setFieldAll(input.dataset.sync, input.value);
+        });
+      });
+
+      setupRxEditor(pair.rx1);
+    }
+
+    // ============================================
+    // (1) Formatação corrigida
+    // ============================================
+    function formatText(command){
+      // tenta usar seleção atual; se perdeu (clique no botão), usa última seleção salva
+      const cur = getRxGlobalSelection();
+      const selToUse = cur.wasInRx ? cur : (lastRxSelection.wasInRx ? lastRxSelection : null);
+      if (!selToUse) return;
+
+      saveState();
+
+      // restaura seleção antes de aplicar
+      restoreRxSelection(selToUse.start, selToUse.end);
+
+      // aplica comando
+      document.execCommand(command, false, null);
+
+      // IMPORTANTÍSSIMO: não repaginar imediatamente (senão "mata" estado do comando).
+      // apenas sincroniza espelho e atualiza estado HTML.
+      rxState.html = collectRxHTMLFromDOM();
+      syncRxMirrorsFromPages();
+
+      // atualiza last selection após o comando (melhor esforço)
+      const after = getRxGlobalSelection();
+      if (after.wasInRx) lastRxSelection = after;
+    }
+
+    // ============================================
+    // Font size controls
+    // ============================================
+    function increaseFontSize(){
+      if (rxState.fontSize >= MAX_FONT_SIZE) return;
+      saveState();
+      const sel = getRxGlobalSelection();
+      rxState.fontSize = clampFontSize(rxState.fontSize + FONT_STEP);
+      repaginateAndRender(sel.wasInRx ? sel : lastRxSelection);
+      updateUI();
+    }
+
+    function decreaseFontSize(){
+      if (rxState.fontSize <= MIN_FONT_SIZE) return;
+      saveState();
+      const sel = getRxGlobalSelection();
+      rxState.fontSize = clampFontSize(rxState.fontSize - FONT_STEP);
+      repaginateAndRender(sel.wasInRx ? sel : lastRxSelection);
+      updateUI();
+    }
+
+    // ============================================
+    // Undo
+    // ============================================
+    function snapshot(){
+      const fields = {};
+      [...ISSUER_FIELDS, 'paciente_nome', 'paciente_end', 'data'].forEach(f => fields[f] = getFieldFromFirst(f));
+      return {
+        rxHtml: rxState.html,
+        rxFontSize: rxState.fontSize,
+        minPairCount,
+        activePairIndex,
+        fields
+      };
+    }
+
+    function saveState(){
+      const snap = snapshot();
+      const last = undoStack[undoStack.length - 1];
+      if (last &&
+        last.rxHtml === snap.rxHtml &&
+        last.rxFontSize === snap.rxFontSize &&
+        last.minPairCount === snap.minPairCount &&
+        last.activePairIndex === snap.activePairIndex &&
+        JSON.stringify(last.fields) === JSON.stringify(snap.fields)
+      ) return;
+
+      undoStack.push(snap);
+      if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
+    }
+
+    function undo(){
+      if (undoStack.length < 2){
+        showToast('Nada para desfazer');
+        return;
+      }
+
+      undoStack.pop();
+      const prev = undoStack[undoStack.length - 1];
+      if (!prev) return;
+
+      isProcessing = true;
+      try{
+        rxState.html = prev.rxHtml || '';
+        rxState.fontSize = clampFontSize(prev.rxFontSize || DEFAULT_FONT_SIZE);
+        minPairCount = Math.max(1, prev.minPairCount || 1);
+
+        ensurePairCount(minPairCount);
+        Object.entries(prev.fields || {}).forEach(([k,v]) => setFieldAll(k, v || ''));
+
+      } finally {
+        isProcessing = false;
+      }
+
+      repaginateAndRender(lastRxSelection);
+      setActivePair(prev.activePairIndex || 0);
+      updateUI();
+      showToast('Ação desfeita (Ctrl+Z)');
+    }
+
+    // ============================================
+    // Emitente: salvar / preencher
+    // ============================================
+    function saveIssuer(){
+      try{
         const data = {};
-        ISSUER_FIELDS.forEach(k => {
-          const el = $(`#via1 [data-field="${k}"]`);
-          data[k] = (el?.value ?? '').trim();
-        });
-        return data;
-      }
-
-      function fillIssuerData(data) {
-        ISSUER_FIELDS.forEach(k => {
-          const el = $(`#via1 [data-field="${k}"]`);
-          if (el && typeof data?.[k] === 'string') el.value = data[k];
-        });
-
-        ISSUER_FIELDS.forEach(k => {
-          const el = $(`#via1 [data-field="${k}"]`);
-          el?.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-
-        $$('.autofit').forEach(fitTextToInput);
-      }
-
-      function loadSavedIssuer() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY_ISSUER);
-          if (!raw) return null;
-          return JSON.parse(raw);
-        } catch {
-          return null;
-        }
-      }
-
-      const btnSaveIssuer = $('#btnSaveIssuer');
-      const btnFillIssuer = $('#btnFillIssuer');
-
-      btnSaveIssuer?.addEventListener('click', () => {
-        const data = getIssuerData();
+        ISSUER_FIELDS.forEach(k => data[k] = (getFieldFromFirst(k) || '').trim());
         localStorage.setItem(STORAGE_KEY_ISSUER, JSON.stringify(data));
-        if (btnFillIssuer) btnFillIssuer.hidden = false;
+        btnFillIssuer.disabled = false;
+        showToast('✓ Emitente salvo!', 'success');
+      } catch (e){
+        console.error(e);
+        showToast('Erro ao salvar emitente');
+      }
+    }
 
-        const old = btnSaveIssuer.innerHTML;
-        btnSaveIssuer.innerHTML = '<i class="fa-solid fa-check"></i> SALVO';
-        setTimeout(() => (btnSaveIssuer.innerHTML = old), 900);
+    function loadSavedIssuer(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY_ISSUER);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function fillIssuer(){
+      const saved = loadSavedIssuer();
+      if (!saved) return;
+      ISSUER_FIELDS.forEach(k => setFieldAll(k, saved[k] || ''));
+      showToast('Dados do emitente preenchidos', 'success');
+    }
+
+    // ============================================
+    // Actions
+    // ============================================
+    function setDefaultDateIfEmpty(force=false){
+      const current = getFieldFromFirst('data')?.trim();
+      if (!force && current) return;
+      const d = new Date().toLocaleDateString('pt-BR');
+      setFieldAll('data', d);
+    }
+
+    function handlePrint(){
+      // garante que está paginado antes de imprimir
+      repaginateAndRender(getRxGlobalSelection().wasInRx ? getRxGlobalSelection() : lastRxSelection);
+      requestAnimationFrame(() => window.print());
+    }
+
+    function clearPrescription(){
+      if (!confirm('Limpar SOMENTE a prescrição?')) return;
+      saveState();
+      rxState.html = '';
+      rxState.fontSize = DEFAULT_FONT_SIZE;
+      minPairCount = 1;
+      repaginateAndRender(lastRxSelection);
+      ensurePairCount(1);
+      setActivePair(0);
+      updateUI();
+      showToast('Prescrição limpa');
+    }
+
+    function resetAll(){
+      if (!confirm('⚠️ Resetar tudo? (emitente, paciente, data e prescrição)')) return;
+      saveState();
+
+      [...ISSUER_FIELDS, 'paciente_nome', 'paciente_end', 'data'].forEach(f => setFieldAll(f, ''));
+
+      rxState.html = '';
+      rxState.fontSize = DEFAULT_FONT_SIZE;
+      minPairCount = 1;
+
+      ensurePairCount(1);
+      setDefaultDateIfEmpty(true);
+      repaginateAndRender(lastRxSelection);
+      setActivePair(0);
+      updateUI();
+      showToast('Tudo resetado');
+    }
+
+    // ============================================
+    // Global events / init
+    // ============================================
+    function setupGlobalEvents(){
+      window.addEventListener('resize', () => repaginateAndRender(getRxGlobalSelection().wasInRx ? getRxGlobalSelection() : lastRxSelection));
+
+      // (1) salva seleção mais recente dentro do RX
+      document.addEventListener('selectionchange', () => {
+        const s = getRxGlobalSelection();
+        if (s.wasInRx) lastRxSelection = s;
       });
 
-      btnFillIssuer?.addEventListener('click', () => {
-        const saved = loadSavedIssuer();
-        if (saved) fillIssuerData(saved);
-      });
-
-      // Sugestão/auto-preenchimento ao entrar
-      (function initIssuerSuggestion() {
-        const saved = loadSavedIssuer();
-        if (!saved) return;
-
-        const allEmpty = ISSUER_FIELDS.every(k => {
-          const el = $(`#via1 [data-field="${k}"]`);
-          return !el || !el.value.trim();
-        });
-
-        if (allEmpty) {
-          fillIssuerData(saved);
-        } else {
-          if (btnFillIssuer) btnFillIssuer.hidden = false;
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey){
+          switch (e.key.toLowerCase()){
+            case 'p': e.preventDefault(); handlePrint(); break;
+            case 's': e.preventDefault(); saveIssuer(); break;
+            case 'z': e.preventDefault(); undo(); break;
+            case 'b': e.preventDefault(); formatText('bold'); break;
+            case 'i': e.preventDefault(); formatText('italic'); break;
+            case 'u': e.preventDefault(); formatText('underline'); break;
+            case '=':
+            case '+': e.preventDefault(); increaseFontSize(); break;
+            case '-': e.preventDefault(); decreaseFontSize(); break;
+          }
         }
-      })();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      createPair();
+      setDefaultDateIfEmpty(false);
+
+      const saved = loadSavedIssuer();
+      if (saved){
+        btnFillIssuer.disabled = false;
+        const allEmpty = ISSUER_FIELDS.every(k => !(getFieldFromFirst(k) || '').trim());
+        if (allEmpty) fillIssuer();
+      }
+
+      setupGlobalEvents();
+      repaginateAndRender();
+      updateUI();
+
+      setTimeout(() => saveState(), 100);
     });
   </script>
 </body>
